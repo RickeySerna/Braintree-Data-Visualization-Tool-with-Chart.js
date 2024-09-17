@@ -1,0 +1,293 @@
+<head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+  <div id="applePayDiv" style="display:none;">
+    <form id="apple-pay-form" action="/apple-pay-transaction-with-nonce" method="post">
+
+      <div class="container">
+        <h1 class="display-4" style="color: #E66C2C;">Thanks for choosing our business today!</h1>
+        <p class="lead subtitle" style="color: #E66C2C;">We hope you had a spooky time. Please ensure that you are using Safari and the HTTPS connection. <a href="https://localhost:8000/ApplePay">https://localhost:8000</a></p>
+      </div>
+
+      <div class="form-row justify-content-md-center">
+        <div class = "col-md-2 mb-3">
+          <label class = "APlabelStyle" for="saveCardCheck">Save your card for future use?</label>
+          <input class="form-control inputClass" type="checkbox" id="saveCardCheck" name="SaveCard" value="Save">
+        </div>
+        <div class = "col-md-2 mb-3">
+          <label class = "APlabelStyle" for="Amount">Amount</label>
+          <input class="form-control APinputClass" name="amount" id="amount" placeholder="99.99" required>
+        </div>
+      </div>
+					
+      <div style = "text-align:center">
+        <p class="lead subtitle" style="color: #E66C2C;">Press the Apple Pay button below to complete payment!</p>
+        <input class = "applePayButtonStyle" type="image" name="applePayButton" id="apple-pay-button"/>
+      </div>
+
+      <!-- Hidden input for the nonce. -->
+      <div>
+        <input type="hidden" id='payment-method-nonce' name="ApplePayNonce">
+      </div>
+
+      <!-- Hidden inputs for the payment data, one for the shipping address object and one for the billing address object. -->
+      <div>
+        <input id='ap-payment-shipping-data' name = 'APPaymentShippingData' type='hidden' />
+      </div>
+
+      <div>
+        <input id='ap-payment-billing-data' name = 'APPaymentBillingData' type='hidden' />
+      </div>
+
+      <!-- Hidden input for the device data string. -->
+      <div>
+        <input id='ap-device-data' name = 'APDeviceData' type='hidden' />
+      </div>
+
+    </form>
+  </div>
+
+</body>
+
+<script>
+var clientToken = '{{{clientToken}}}';
+var form = document.querySelector('#apple-pay-form');
+var nonce = document.querySelector('#payment-method-nonce');
+var APPaymentShippingData = document.querySelector('#ap-payment-shipping-data');
+var APPaymentBillingData = document.querySelector("#ap-payment-billing-data");
+var deviceDataString = document.querySelector('#ap-device-data');
+console.log("Client token in Apple Pay: " + clientToken);
+
+function inputValidation() {
+  let amountInputted = document.forms["apple-pay-form"]["amount"].value;
+  let saveCardCheckboxBool = document.forms["apple-pay-form"]["saveCardCheck"].checked;
+
+    // Giving the customer the option to save their card or not. If checked, the form is sent to the usual /transaction location. If not, changing the destination of the form to a POST that just uses the nonce in a sale call directly.
+  if (saveCardCheckboxBool == false) {
+    // The box is not checked, the customer doesn't want their card saved, submit the form to a checkout that just uses the nonce in a sale call.
+    console.log("nope, it's not checked");
+    document.forms["apple-pay-form"].action = "/apple-pay-transaction-with-nonce";
+  } else {
+    // The box is checked, customer wants their card saved, submit the form to our original function which creates a token, then a txn from that token.
+    console.log("yep, it's checked")
+    document.forms["apple-pay-form"].action = "/apple-pay-transaction-with-token";
+  }
+
+  let formDestination = document.forms["apple-pay-form"].action;
+  console.log("Form action: " + formDestination);
+
+  // Making sure the input is actually a number. The second condition is somewat redundant because the field is required, but just in case.
+  if (isNaN(amountInputted) || amountInputted == "") {
+    console.log("Amount field value: " + amountInputted);
+    alert("Please enter a number.");
+    return false;
+  }
+  // Making sure the number is positive and not 0.
+  else if (((Number(amountInputted) * -1) > 0) || (Number(amountInputted) * Number(amountInputted) == 0)) {
+    console.log("Amount field value: " + amountInputted);
+    alert("Please enter a positive number.");
+    return false;
+  }
+  else {
+    return true;
+  }
+}
+
+// Using the latest version of Apple Pay.
+if (window.ApplePaySession && ApplePaySession.supportsVersion(14) && ApplePaySession.canMakePayments()) {
+  console.log('This device supports version 14 Apple Pay. Woohoo!');
+} else {
+  console.log("This device does NOT support Apple Pay. If you're using a browser other than Safari, switch to Safari!");
+}
+
+braintree.client.create({
+  authorization: clientToken
+}, function (clientErr, clientInstance) {
+  if (clientErr) {
+    console.error('Error creating client:', clientErr);
+    return;
+  }
+
+  braintree.applePay.create({
+    client: clientInstance
+  }, function (applePayErr, applePayInstance) {
+    if (applePayErr) {
+      console.error('Error creating applePayInstance:', applePayErr);
+      return;
+    }
+
+      btApplePayInstance = applePayInstance;
+      document.getElementById("applePayDiv").style.display = "inline";
+  });
+
+  // Creating the data collector instance to pass device data into Apple Pay txns.
+  braintree.dataCollector.create({
+    client: clientInstance
+  }, function (err, dataCollectorInstance) {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    var deviceData = dataCollectorInstance.deviceData;
+    console.log("Device data: ", deviceData);
+    deviceDataString.value = deviceData;
+  });
+});
+
+// Button event listener, you have to place the var session = new ApplePaySession() inside this listener or else you'll get an error!
+document.getElementById("apple-pay-button").addEventListener("click", function(e){
+  // Prevent form from submitting before buyer goes through Apple Pay authorization
+  e.preventDefault();
+
+  var inputChecker = inputValidation();
+  console.log("Input verified value: " + inputChecker);
+
+  // inputValidation() will return false if the amount value is bad, just returning and ending this there if so.
+  if (inputChecker == false) {
+    return;
+  }
+  // The function returned true, moving forward with Apple Pay!
+  else {
+  
+  // Apple Pay seems to not like it when decimal values beyond the hundredths place are added, so cutting that off here instead of in the server.
+  var amountFromForm = Number(document.forms["apple-pay-form"]["amount"].value).toFixed(2);
+
+  var paymentRequest =  btApplePayInstance.createPaymentRequest({
+    total: {
+        label: "Gardensound Inc.",
+        type: "final",
+        amount: amountFromForm
+      },
+    lineItems: [
+      {
+        label: "Superunknown (1994), Soundgarden, A&M",
+        type: "final",
+        amount: amountFromForm
+      },
+      {
+        label: "Free Shipping",
+        type: "final",
+        amount: "0.00"
+      }
+    ],
+    // From what I can find, these seem to be all of the possible values to require for shipping/billing addresses.
+    requiredBillingContactFields: [
+      "postalAddress",
+      "name",
+      "phoneticName",
+      "phone",
+      "email"
+    ],
+    requiredShippingContactFields: [
+      "postalAddress",
+      "name",
+      "phoneticName",
+      "phone",
+      "email"
+    ]
+    // Those 4 values below are actually parameters to be set here in the payment request, but the BT API just does that automatically for us.
+    // The info is based on the Braintree gateway and more specifically, on the default merchant account in the gateway.
+    // If the defauly MAID is USD, currencyCode is being set in the background by the BT API like this:
+    // currencyCode: "USD"
+    // It can be changed to whatever currency someone might want though, just have to set it explicitly like that^.
+
+    // supportedNetworks works the same, that's a parameter that can be set here and it'll determine which card brands can be used.
+    // The BT API just automatically loads them based on the merchant account's accepted cards, but it can be changed.
+    // If someone only wants Visa cards to be accepted, they can pass this here: supportedNetworks: ["visa"]
+    // Then, all of the customers cards will display fine, but only their Visa cards can be selected.
+    // The rest are not selectable and they have a message reading: Not accepted by this website
+
+    // countryCode is the same, that one is useful for determining the customer's location for taxes and things like that.
+
+    // merchantCapabilities is used to determine the capabilities the merchant supports (self-explanatory).
+    // It doesn't do much tbh, but supports3DS is actually required and the BT API automatically supplies that.
+    // 3DS + Apple Pay is not a thing, but Apple requires it anyway to make sure the merchant is compliant with security standards/regulations.
+    // Failing to pass it will lead to the "Payment Not Completed" error.
+    // supportsCredit & supportsDebit can be passed too, using either one would make it so only credit/debit cards are allowed.
+    // ^ unless both or neither are passed.
+    // Also, supportsCredit will only allow the customer to select debit cards and vice versa with supportsDebit.
+  });
+
+  // These are all automatically loaded from the BT gateway.
+  console.log(paymentRequest.countryCode);
+  console.log(paymentRequest.currencyCode);
+  console.log(paymentRequest.merchantCapabilities);
+  console.log(paymentRequest.supportedNetworks);
+
+  // Here's where we create the session. This is an object that's defined for each individual transaction.
+  // It contains all information and steps for each process of the transaction. Everything we call later will be from this session.
+  // The first parameter is the version of Apple Pay. Using the latest version here, 14.
+  var session = new ApplePaySession(14, paymentRequest);
+          
+  // This is where the Apple Pay URL and the merchant as a whole is validated with Apple's servers.
+  session.onvalidatemerchant = function (event) {
+    console.log('onvalidatemerchant event:', event);
+    btApplePayInstance.performValidation({
+      // Calls a URL from Apple where the merchant's registration is validated directly with Apple.
+      // Their servers return a response indicating either that the merchant has successfully registered with Apple or not.
+      validationURL: event.validationURL,
+      displayName: "Gardensound Inc."
+    }, function (validationErr, merchantSession) {
+      // If the URL has not been added to the Control Panel, this will trigger.
+      if (validationErr) {
+        console.error("Unable to load Apple Pay: ", validationErr);
+        session.abort();
+        return;
+      }
+      // This line tells the session object that the validation was successful and it can move forward with the actual transaction.
+      session.completeMerchantValidation(merchantSession);
+    });
+  };
+          
+  // onpaymentauthorized is event handler triggered when the customer has authorizes the transaction with Touch ID, Face ID, or a passcode.
+  // It's a callback with an event and that event contains a token which we pass to the BT Apple Pay instance to receive a nonce.
+  session.onpaymentauthorized = function (event) {
+    console.log('onpaymentauthorized event:', event);
+    // The event also has objects with the shipping and billing address the customer entered.
+    // Grabbing the shipping address.
+    if (event.payment.shippingContact) {
+      console.log('Your shipping address is:', event.payment.shippingContact);
+      // Passing the shipping object to the server to use that info in the Sale call.
+      APPaymentShippingData.value = JSON.stringify(event.payment.shippingContact);
+    }
+
+    // Also grabbing the billing address.
+    if (event.payment.billingContact) {
+      console.log('Your billing address is:', event.payment.billingContact);
+      APPaymentBillingData.value = JSON.stringify(event.payment.billingContact);
+    }
+
+    // Was hoping event.payment contained even more info to pass back, but the ApplePayPayment object only contains these: https://developer.apple.com/documentation/apple_pay_on_the_web/applepaypayment
+        
+    // Here's where the BT tokenization happens.
+    btApplePayInstance.tokenize({
+      token: event.payment.token
+    }, function (tokenizeErr, payload) {
+      if (tokenizeErr) {
+        console.error('Error tokenizing Apple Pay: ', tokenizeErr);
+        // completePayment essentially ends the session, completing the payment with a result.
+        // In this case, because there was an error tokenizing the transaction, we end it with a failed status.
+        session.completePayment(ApplePaySession.STATUS_FAILURE);
+        console.log(payload.nonce);
+        return;
+      }
+      // All successful here, ending the payment with a success result.
+      session.completePayment(ApplePaySession.STATUS_SUCCESS);
+
+      // Adding the nonce to the form
+      nonce.value = payload.nonce;
+
+      // Everything successful, nonce and data added to the form, sending everything over to the server.
+      form.submit();
+    });
+  }
+
+  // This presents the payment sheet to the customer and executes the merchant validation process.
+  // When it appears, the customer will see a spinner on the payment sheet labelled "Processing", that's when everything in onvalidatemerchant is taking place.
+  // When completeMerchantValidation() is called, the customer is prompted to complete the transaction.
+  session.begin();
+  }
+});
+</script>

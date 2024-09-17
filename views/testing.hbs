@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<head>
+</head>
+
+<body>
+  <form action="/testing-result" id="hosted-fields-form" method="post"  name="checkoutForm">
+    <div class="jumbotron jumbotron-fluid" style="background-color: rgba(255, 255, 255, 0);">
+        <div class="container">
+            <p class="lead subtitle" style="color: #E66C2C;">Press the button below to execute the API call.</p>
+        </div>
+    </div>
+
+    <div>
+      <input id='device-data-string' name= 'DeviceDataString' type='hidden' />
+    </div>
+    
+    <div class = "submitButton">
+        <input class="btn btn-outline-primary buttonStyle" type="submit" value="Pay"/>
+    </div>
+  </form>
+</body>
+
+<script>
+  var form = document.querySelector('#hosted-fields-form');
+  var submit = document.querySelector('input[type="submit"]');
+  var clientToken = '{{{clientToken}}}'
+  var deviceDataString = document.querySelector('#device-data-string');
+
+  console.log("Client token: " + clientToken);
+
+  braintree.client.create({
+    authorization: clientToken
+  }, function (clientErr, clientInstance) {
+    if (clientErr) {
+      console.error('Error creating client:', clientErr);
+      return;
+    }
+
+    braintree.dataCollector.create({
+      client: clientInstance
+    }, function (err, dataCollectorInstance) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+
+      var deviceData = dataCollectorInstance.deviceData;
+      console.log(deviceData);
+      deviceDataString.value = deviceData;
+    });
+  });
+</script>

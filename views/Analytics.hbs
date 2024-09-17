@@ -1,0 +1,1668 @@
+<head>
+</head>
+
+<body>
+    <div id="analytics-jumbotron" class="jumbotron">
+        <h1 id="analyticsHeader">Welcome to Transaction Analytics!</h1>
+    </div>
+
+    <!-- Quick intro describing the page. -->
+    <div id="analytics-intro">
+        <br>
+        <br>
+        <br>
+        <!-- From John Carpenter himself. -->
+        <div class = "halloween-pumpkin-style"></div>
+        <div class = "halloween-pumpkin-style" style="float:right;"></div>
+        <p>This page will generate two graphs based on transactions from the Braintree gateway</p>
+        <p>A line graph plotting transactions in sequence and a bar graph displaying transction volume by day</p>
+        <br style="clear:both;">
+        <br>
+        <br>
+        <p>Enter a search range below and hit enter or click the button to generate the graphs!</p>
+    </div>
+
+    <!-- Creating two input dates for the search parameters and a button to generate the graph. -->
+    <div id="searchDiv">
+        <div id="date-inputs">
+            <input type="date" id="start-date">
+            <input type="date" id="end-date">
+        </div>
+        <button id="graph-generator">Search</button>
+    </div>
+
+    <div id="graph-area">
+        <!-- Div holding the line chart and its checkbox options. -->
+        <div class="row" style="border-bottom: 2.5px solid #ff8e51c8;">
+            <div class="col-10">
+                <div class="graphStyle">
+                    <div>
+                        <button id="line-chart-pop-out" style="position: absolute; left: 40px; top: 25px; display: none;">Pop Out</button>
+                        <h1 id="line-chart-title">Transaction Timeline</h1>
+                    </div>
+                    <div id="line-chart-panning-message" style="position: absolute; bottom: 50px; right: 10px; z-index: 10;"></div>
+                    <canvas id="transaction-line-chart"></canvas>
+                </div>
+            </div>
+            <div id="line-chart-right-column" class="col-2" style="top: 30px; display: none;">
+                <!-- Creating divs for the checkbox options for the line chart. -->
+                <div class="checkbox-cols">
+                    <p>Payment Methods:</p>
+                    <div id="transaction-types-line-chart"></div>
+                </div>
+                <div class="checkbox-cols">
+                    <p>Statuses:</p>
+                    <div id="transaction-statuses-line-chart"></div>
+                </div>
+                <div class="checkbox-cols">
+                    <p>Card Types:</p>
+                    <div id="transaction-card-types-line-chart"></div>
+                </div>
+                <div class="checkbox-cols">
+                    <p>Set Y Max Value:</p>
+                    <input type="text" id="line-chart-yvalue-input">
+                    <button id="line-chart-yaxis-submit">Set</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Div holding the bar chart and its checkbox options. -->
+        <div class="row" style="border-top: 2.5px solid #ff8e51c8;">
+            <div class="col-10">
+                <div class="graphStyle" style="position: relative;">
+                    <div>
+                        <button id="bar-chart-pop-out" style="position: absolute; left: 25px; top: 25px; display: none;">Pop Out</button>
+                        <h1 id="bar-chart-title" style="text-align: center;">Transaction Volume by Day</h1>
+                    </div>
+                    <div id="bar-chart-panning-message" style="position: absolute; bottom: 50px; right: 10px; z-index: 10;"></div>
+                    <canvas id="transaction-bar-chart"></canvas>
+                </div>
+            </div>
+            <div id="bar-chart-right-column" class="col-2" style="top: 30px; display: none;">
+                <!-- Creating divs for the checkbox options for the bar chart. -->
+                <div class="checkbox-cols">
+                    <p>Payment Methods:</p>
+                    <div id="transaction-types-bar-chart"></div>
+                </div>
+                <div class="checkbox-cols">
+                    <p>Statuses:</p>
+                    <div id="transaction-statuses-bar-chart"></div>
+                </div>
+                <div class="checkbox-cols">
+                    <p>Card Types:</p>
+                    <div id="transaction-card-types-bar-chart"></div>
+                </div>
+                <div class="checkbox-cols">
+                    <p>Set Y Max Value:</p>
+                    <input type="text" id="bar-chart-yvalue-input">
+                    <button id="bar-chart-yaxis-submit">Set</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Adding a spinner that will be shown while the AJAX call runs in the background and is hidden after the call is done. -->
+        <div id="spinner-overlay">
+            <div id="analyticsSpinnerDiv">
+                <div id="theActualAnalyticsSpinner" class="spinner-border" role="status"></div>
+                <div class="spinner-text">Fetching data...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Declare the chart variable globally so that it's accessible when we run fetchTransactionData a second time.
+        var transactionChart;
+        // Declaring another variable for the bar chart.
+        var transactionBarChart;
+
+        // Defining these inside of the success function as a whole so that I can pass them into the Y max event handlers.
+        // Update: moving these completely outside of the AJAX function since it seems like they weren't getting overwritten properly. Now they are.
+        var originalMaxYLineChart;
+        var originalMaxYBarChart;
+
+        // Setting the AJAX call inside of a function so that we can readily call it again when the button is clicked.
+        function generateGraph(startDate, endDate) {
+            $.ajax({
+                // Passing the parameters over to the server for use there.
+                // Everything before ? is the path to the route.
+                // Everything after ? is the query string. So if the dates are both 2024-01-01 it's being passed as: /transactionDataForAnalytics?startDate=2024-01-01&endDate=2024-01-01
+                // Then we can access startDate and endDate in the server.
+                url: '/transactionDataForAnalytics?startDate=' + startDate + '&endDate=' + endDate,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    // The arrays are in reverse order chronologically, so we're reversing them now.
+                    var createdAt = response.createdAt.reverse();
+                    var amounts = response.amounts.reverse();
+                    var ids = response.ids.reverse();
+                    var statuses = response.statuses.reverse();
+                    var types = response.types.reverse();
+                    var cardTypes = response.cardTypes.reverse();
+
+                    console.log("Date array: ", createdAt);
+                    console.log("Amount array: ", amounts);
+                    console.log("ID array: ", ids);
+                    console.log("Status array: ", statuses);
+                    console.log("Type array: ", types);
+                    console.log("Card type array: ", cardTypes);
+
+                    // This function generates the filtered arrays that we were previously generating manually one by one.
+                    // It returns an array built from the "array" it was passed.
+                    // The array is filled with the property values which pass the filters.
+                    // Now, we can just define this logic once, then use it for all 12 times we create these array.
+                    // Also takes selected... arrays since those are different for each graphs.
+                    function filterArrays(array, selectedTypes, selectedStatuses, selectedCardTypes) {
+                        return array.map(function(item, i) {
+                            if (selectedTypes.includes(response.types[i]) && selectedStatuses.includes(response.statuses[i]) && selectedCardTypes.includes(response.cardTypes[i])) {
+                                return item;
+                            }
+                            else {
+                                return null;
+                            }
+                        });
+                    }
+
+                    // This function fills the globally defined variables with information from the search results we pulled.
+                    // This will be used to fill in the textbox on the chart summarizing the transactions returned.
+                    // Updating this to take arrays as parameters. This way the information generated is updated when the user filters data out.
+                    function fillSearchResultsInfo(filteredDates, filteredAmounts, filteredIDs, filteredStatuses, filteredTypes, filteredCardTypes) {
+                        // Making sure the chart exists.
+                        console.log(transactionChart);
+
+                        // These are not defined globally anymore, they're just defined here each time the function is called. Functions the same.
+                        // Resetting the amount to 0.
+                        let searchAmountTotal = 0;
+                        // Resetting the declined amount to 0.
+                        let processorDeclinedTotal = 0;
+                        // Resetting the rejected amount to 0.
+                        let gatewayRejectedTotal = 0;
+                        // Resetting the general fails amount to 0.
+                        let otherFailuresTotal = 0;
+                        // Resetting the transaction count to 0.
+                        let numberOfTransactions = 0;
+                        // Emptying the map.
+                        let transactionTypeCounts = {};
+
+                        // This will only count transactions that are not filtered out now.
+                        for (let i = 0; i < filteredDates.length; i++) {
+                            if (filteredDates[i] != null) {
+                                numberOfTransactions += 1;
+                            }
+                        }
+                        console.log("Total transactions found: " + numberOfTransactions);
+
+                        // This for loop fills searchAmountTotal, processorDeclinedTotal, and atewayRejectedTotal with the amounts of transactions with each status.
+                        // We create a few cases that fit each status and each individual var has the amount added if the index in filteredStatuses matches that status.
+                        for (let i = 0; i < filteredDates.length; i++) {
+                            // When filtering, having null values in the filteredAmountss arrays breaks the default case. So we add this to bypass that and avoid a NaN error.
+                            if (filteredAmounts[i] === null) continue;
+                            let thisAmount = parseFloat(filteredAmounts[i]);
+                            switch (filteredStatuses[i]) {
+                                // All of these statuses are succesful so they can all be added to searchAmountTotal.
+                                case "Settled":
+                                case "Submitted For Settlement":
+                                case "Settling":
+                                case "Authorized":
+                                    searchAmountTotal += thisAmount;
+                                    break;
+                                case "Processor Declined":
+                                    processorDeclinedTotal += thisAmount;
+                                    break;
+                                case "Gateway Rejected":
+                                    gatewayRejectedTotal += thisAmount;
+                                    break;
+                                default:
+                                    otherFailuresTotal += thisAmount;
+                            }
+                        }
+                        // When there are many transactions, long floating points are generated, like this: 677.8399999999999
+                        // This will round the number to the nearest hundredths place. Also wrapped in parseFloat() since toFixed() returns a string.
+                        // Using toLocateString to make these numbers look more money-like.
+                        searchAmountTotal = parseFloat(searchAmountTotal.toFixed(2)).toLocaleString('en-US', {minimumFractionDigits: 2});
+                        processorDeclinedTotal = parseFloat(processorDeclinedTotal.toFixed(2)).toLocaleString('en-US', {minimumFractionDigits: 2});
+                        gatewayRejectedTotal = parseFloat(gatewayRejectedTotal.toFixed(2)).toLocaleString('en-US', {minimumFractionDigits: 2});
+                        otherFailuresTotal = parseFloat(otherFailuresTotal.toFixed(2)).toLocaleString('en-US', {minimumFractionDigits: 2});
+                        console.log("Total successfully transacted: " + searchAmountTotal)
+                        console.log("Total amount Processor Declined: " + processorDeclinedTotal);
+                        console.log("Total amount Gateway Rejected: " + gatewayRejectedTotal);
+                        console.log("Total amount failed otherwise: " + otherFailuresTotal);
+
+                        for (let i = 0; i < types.length; i++) {
+                            // Including this check now so that there doesn't end up being a category for null if the user filters anything out.
+                            if (filteredTypes[i] !== null) {
+                                if (!transactionTypeCounts[filteredTypes[i]]) {
+                                    transactionTypeCounts[filteredTypes[i]] = 0;
+                                }
+                                transactionTypeCounts[filteredTypes[i]]++;
+                            }
+                        }
+                        console.log("Count of transaction types: ", transactionTypeCounts);
+
+                        // Grabbing the dates from the date inputs to throw into the text box.
+                        var startDate = document.getElementById('start-date').value;
+                        var endDate = document.getElementById('end-date').value;
+
+                        // Formatting the dates so that they're more readable to humans with moment.js. Same thing we do on the server.
+                        var formattedStartDate = moment(startDate).format('MMMM Do, YYYY');
+                        var formattedEndDate = moment(endDate).format('MMMM Do, YYYY');
+
+                        // This is where we generate the actual message that will appear on top of the chart.
+                        var infoText = 'Transaction Summary for ' + formattedStartDate + ' to ' + formattedEndDate + '\n';
+                        infoText += '   ' + 'Total transactions found: ' + numberOfTransactions + '\n';
+                        infoText += '   ' + 'Total amount successfully transacted: $' + searchAmountTotal + '\n';
+                        infoText += '   ' + 'Total amount Processor Declined: $' + processorDeclinedTotal + '\n';
+                        infoText += '   ' + 'Total amount Gateway Rejected: $' + gatewayRejectedTotal + '\n';
+                        infoText += '   ' + 'Total amount failed otherwise: $' + otherFailuresTotal + '\n';
+                        infoText += '   ' + 'Total transactions of each type:\n';
+                        for (var type in transactionTypeCounts) {
+                            infoText += '   ' + '   ' + type + ': ' + transactionTypeCounts[type] + '\n';
+                        }
+
+                        // Ensure that transactionChart.options.elements exists. If it doesn't, we create it as an empty object.
+                        if (!transactionChart.options.elements) {
+                            transactionChart.options.elements = {};
+                        }
+
+                        // transactionChart.options.elements defined.
+                        transactionChart.options.elements.center = {
+                            text: infoText,
+                            fontSize: 15,
+                            fontStyle: 'normal',
+                            fontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif"
+                        };
+                    }
+
+                    // The afterDraw plugin is registered for all charts so we need to make a function which adds a center element, similar to the above function.
+                    // The plugin throws an error if we don't do this.
+                    function fillBarChartInfo(filteredDates, filteredAmounts, filteredIDs, filteredStatuses, filteredTypes, filteredCardTypes) {
+
+                        // This is essentially doing the same thing as the other function for the line chart.
+
+                        // Making sure the chart exists.
+                        console.log(transactionBarChart);
+
+                        // Resetting the amount to 0.
+                        let searchAmountTotalBar = 0;
+                        // Resetting the declined amount to 0.
+                        let processorDeclinedTotalBar = 0;
+                        // Resetting the rejected amount to 0.
+                        let gatewayRejectedTotalBar = 0;
+                        // Resetting the transaction count to 0.
+                        let numberOfTransactionsBar = 0;
+                        // Resetting the general fails amount to 0.
+                        let otherFailuresTotalBar = 0;
+                        // Emptying the map.
+                        let transactionTypeCountsBar = {};
+
+                        // Counting the number of transactions.
+                        for (let i = 0; i < filteredDates.length; i++) {
+                            if (filteredDates[i] != null) {
+                                numberOfTransactionsBar += 1;
+                            }
+                        }
+                        console.log("Total transactions found: " + numberOfTransactionsBar);
+
+                        // This for loop fills searchAmountTotal, processorDeclinedTotal, and gatewayRejectedTotal with the amounts of transactions with each status.
+                        // We create a few cases that fit each status and each individual var has the amount added if the index in filteredStatuses matches that status.
+                        for (let i = 0; i < filteredDates.length; i++) {
+                            if (filteredAmounts[i] === null) continue;
+                            let thisAmount = parseFloat(filteredAmounts[i]);
+                            switch (filteredStatuses[i]) {
+                                // Both of these statuses are succesful so either one can add to searchAmountTotal.
+                                case "Settled":
+                                case "Submitted For Settlement":
+                                case "Settling":
+                                case "Authorized":
+                                    searchAmountTotalBar += thisAmount;
+                                    break;
+                                case "Processor Declined":
+                                    processorDeclinedTotalBar += thisAmount;
+                                    break;
+                                case "Gateway Rejected":
+                                    gatewayRejectedTotalBar += thisAmount;
+                                    break;
+                                default:
+                                    otherFailuresTotalBar += thisAmount;
+                            }
+                        }
+                        // When there are many transactions, long floating points are generated, like this: 677.8399999999999
+                        // This will round the number to the nearest hundredths place. Also wrapped in parseFloat() since toFixed() returns a string.
+                        searchAmountTotalBar = parseFloat(searchAmountTotalBar.toFixed(2)).toLocaleString('en-US', {minimumFractionDigits: 2});
+                        processorDeclinedTotalBar = parseFloat(processorDeclinedTotalBar.toFixed(2)).toLocaleString('en-US', {minimumFractionDigits: 2});
+                        gatewayRejectedTotalBar = parseFloat(gatewayRejectedTotalBar.toFixed(2)).toLocaleString('en-US', {minimumFractionDigits: 2});
+                        otherFailuresTotalBar = parseFloat(otherFailuresTotalBar.toFixed(2)).toLocaleString('en-US', {minimumFractionDigits: 2});
+                        console.log("Total successfully transacted: " + searchAmountTotalBar);
+                        console.log("Total amount Processor Declined: " + processorDeclinedTotalBar);
+                        console.log("Total amount Gateway Rejected: " + gatewayRejectedTotalBar);
+                        console.log("Total amount failed otherwise: " + otherFailuresTotalBar);
+
+
+                        for (let i = 0; i < types.length; i++) {
+                            // Including this check now so that there doesn't end up being a category for null if the user filters anything out.
+                            if (filteredTypes[i] !== null) {
+                                if (!transactionTypeCountsBar[filteredTypes[i]]) {
+                                    transactionTypeCountsBar[filteredTypes[i]] = 0;
+                                }
+                                transactionTypeCountsBar[filteredTypes[i]]++;
+                            }
+                        }
+                        console.log("Count of transaction types: ", transactionTypeCountsBar);
+
+                        // Grabbing the dates from the date inputs to throw into the text box.
+                        var startDate = document.getElementById('start-date').value;
+                        var endDate = document.getElementById('end-date').value;
+
+                        // Formatting the dates so that they're more readable to humans with moment.js. Same thing we do on the server.
+                        var formattedStartDate = moment(startDate).format('MMMM Do, YYYY');
+                        var formattedEndDate = moment(endDate).format('MMMM Do, YYYY');
+
+                        // This is where we generate the actual message that will appear on top of the chart.
+                        var infoText = 'Transaction Summary for ' + formattedStartDate + ' to ' + formattedEndDate + '\n';
+                        infoText += '   ' + 'Total transactions found: ' + numberOfTransactionsBar + '\n';
+                        infoText += '   ' + 'Total amount successfully transacted: $' + searchAmountTotalBar + '\n';
+                        infoText += '   ' + 'Total amount Processor Declined: $' + processorDeclinedTotalBar + '\n';
+                        infoText += '   ' + 'Total amount Gateway Rejected: $' + gatewayRejectedTotalBar + '\n';
+                        infoText += '   ' + 'Total amount failed otherwise: $' + otherFailuresTotalBar + '\n';
+                        infoText += '   ' + 'Total transactions of each type:\n';
+                        for (var type in transactionTypeCountsBar) {
+                            infoText += '   ' + '   ' + type + ': ' + transactionTypeCountsBar[type] + '\n';
+                        }
+
+                        if (!transactionBarChart.options.elements) {
+                            transactionBarChart.options.elements = {};
+                        }
+
+                        transactionBarChart.options.elements.center = {
+                            text: infoText,
+                            fontSize: 15,
+                            fontStyle: 'normal',
+                            fontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif"
+                        };
+                    }
+
+                    // In the line chart, the x axis is just the dates of each individual transaction, not the date of each day.
+                    // So this was displaying incorrect dates. Need to make this pull the date of the txn instead.
+                    function onPanChartFunctionLineChart ({chart}, divId) {
+                        // Assigning the x axis of the graph to a variable.
+                        var xAxis = chart.scales['x'];
+
+                        // This function is pulling the indices that the dates are at.
+                        var leftDateIndex = xAxis.getValueForPixel(xAxis.left);
+                        var rightDateIndex = xAxis.getValueForPixel(xAxis.right);
+
+                        // To pull the actual date, we grab the index of the dates array with these above indices.
+                        // Also using moment to format the dates.
+                        // Pulling the createdAt array value instead of the dates array value.
+                        var leftDate = moment(createdAt[leftDateIndex], "MMMM Do, YYYY - h:mm A").format("MMMM Do, YYYY");
+                        var rightDate = moment(createdAt[rightDateIndex - 1], "MMMM Do, YYYY - h:mm A").format("MMMM Do, YYYY");
+
+                        // Here's where we generate the message and add it to the div we created in the HBS code.
+                        var divMessage = document.getElementById(divId);
+                        divMessage.innerHTML = "Displaying data from " + leftDate + " to " + rightDate;
+                    }
+
+                    // Moving these onPan functions into their own definitions so that they can be re-used in both charts.
+                    function onPanChartFunction({chart}, divId) {
+                        // Assigning the x axis of the graph to a variable.
+                        var xAxis = chart.scales['x'];
+
+                        // This function is pulling the indices that the dates are at.
+                        var leftDateIndex = xAxis.getValueForPixel(xAxis.left);
+                        var rightDateIndex = xAxis.getValueForPixel(xAxis.right);
+
+                        // To pull the actual date, we grab the index of the dates array with these above indices.
+                        // Also using moment to format the dates.
+                        var leftDate = moment(dates[leftDateIndex], 'YYYY-MM-DD').format('MMMM Do, YYYY');
+                        var rightDate = moment(dates[rightDateIndex - 1], 'YYYY-MM-DD').format('MMMM Do, YYYY');
+
+                        // Here's where we generate the message and add it to the div we created in the HBS code.
+                        var divMessage = document.getElementById(divId);
+                        divMessage.innerHTML = "Displaying data from " + leftDate + " to " + rightDate;
+                    }
+
+                    function onPanCompleteChartFunction (divId) {
+                        // Once panning is complete, this function just empties the div we created so that the user doesn't see the message anymore.
+                        var messageDiv = document.getElementById(divId);
+                        // Setting a small timeout here so that the message doesn't disappear immediately. It displays for a few seconds before going away.
+                        setTimeout(function() {
+                            messageDiv.innerHTML = "";
+                        }, 2500);
+                    }
+
+                    // Update: moving this inside of it's own function so that the logic can be applied to this original chart and the cloned chart.
+                    function setPanMode(chart) {
+                        // The following event listeners are making it so that the pan mode of the chart is dynamically changed depending on how the user pans.
+                        // If the user tries to pan from left to right, the mode is set to "x" so that they can only pan on the x axis.
+                        // If the user pans up and down, it's set to "y" so they can only pan on the y axis.
+
+                        // This var will be filled with the starting point of the pan operation.
+                        var panStartingPoint = null;
+
+                        // Creating an event listener for the mousedown event on the chart - that's just when the user presses their mouse/input.
+                        chart.canvas.addEventListener('mousedown', function(event) {
+                            // So when the user presses down, we record where they pressed on the graph (the x,y point) into the panStartingPoint var we just declared.
+                            panStartingPoint = { x: event.clientX, y: event.clientY };
+                        });
+
+                        // Event listener for the mousemove event - when the user moves their mouse/input.
+                        chart.canvas.addEventListener('mousemove', function(e) {
+                            // First, we check if the user is panning by checking to see if panStartingPoint isn't null and if panning is enabled on the chart config.
+                            if (panStartingPoint && chart.config.options.plugins.zoom.pan.enabled) {
+                                // If they're panning, we calculate the difference between where the user started panning and where the user currently has the mouse on both the X and Y axises.
+                                var diffX = Math.abs(e.clientX - panStartingPoint.x);
+                                var diffY = Math.abs(e.clientY - panStartingPoint.y);
+
+                                // Then we compare those two differences; if the x difference is greater than the y difference, the mode is set to "x". Vice versa for "y".
+                                chart.config.options.plugins.zoom.pan.mode = diffX > diffY ? "x" : "y";
+                            }
+                        });
+
+                        // Event listener for the mouseup event - user let the mouse/input go.
+                        chart.canvas.addEventListener('mouseup', function() {
+                            // All we do here is reset the panStartingPoint to null so that this is all ready to go again if the user starts panning again.
+                            panStartingPoint = null;
+                        });
+                    };
+
+                    // This function will change the maximum y axis value of the chart it's called on.
+                    function setChartYAxisManually (chart, max) {
+                        // Checking that the user entered a valid input in the first place.
+                        if (max === null || max === undefined) {
+                            alert("Please enter a number.");
+                            return;
+                        }
+                        else if (max === '') {
+                            alert("Please enter a number.");
+                            return;
+                        }
+                        // Checking if the input is actually a number.
+                        else if (isNaN(max)) {
+                            alert("Please enter a valid number.");
+                            return;
+                        }
+                        // Checking if it's infinite.
+                        // An infinite Y axis is not very use friendly.
+                        else if (!isFinite(max)) {
+                            alert("Please enter a finite number.");
+                            return;
+                        }
+                        // Checking if the input is greater than 0.
+                        else if (max <= 0) {
+                            alert("Please enter a number greater than 0.");
+                            return;
+                        }
+                        // All conditions passed, set the Y axis maximum.
+                        else {
+                            floatMax = parseFloat(max);
+                            chart.options.scales.y.max = floatMax;
+                            chart.update();
+                        }
+                    };
+
+                    // Event listener function that both charts' buttons will use.
+                    function handleYAxisSetButtonClick (event, originalYMax) {
+                        // Grabbing the id of the button that was clicked.
+                        let buttonId = event.target.id;
+
+                        // Determining which chart to update based on the button id we just pulled.
+                        let chart;
+                        let inputId;
+                        if (buttonId === 'line-chart-yaxis-submit') {
+                            chart = transactionChart;
+                            inputId = 'line-chart-yvalue-input';
+                        } else if (buttonId === 'bar-chart-yaxis-submit') {
+                            chart = transactionBarChart;
+                            inputId = 'bar-chart-yvalue-input';
+                        }
+
+                        // Grab that max value that the user inputted.
+                        let max = document.getElementById(inputId).value;
+
+                        // Checking if max is greater than the original Y maximum. Allowing this led to weird behavior in the chart, so cutting that off now.
+                        if (max > originalYMax) {
+                            alert("Cannot set Y max greater than the original setting.");
+                            return;
+                        }
+                        else {
+                            // Set the chart with that value.
+                            setChartYAxisManually(chart, max);
+                        }
+                    }
+
+                    // afterDraw is a hook that executes after the chart is drawn. In our case, it generates the text we defined in fillSearchResultsInfo().
+                    // Has to be declared outside of the chart as a plugin like this.
+                    var beforeDrawPlugin = {
+                        id: 'beforeDrawPlugin',
+                        beforeDraw: function(chart, args, options) {
+                            var ctx = chart.ctx;
+                            var centerConfig = chart.options.elements.center;
+                            var globalConfig = Chart.defaults.font;
+
+                            var fontStyle = centerConfig.fontStyle || globalConfig.style;
+                            var fontFamily = centerConfig.fontFamily || globalConfig.family;
+
+                            // Calculate the font size as a percentage of the chart height
+                            var fontSize = chart.height * 0.025; // 5% of the chart height
+
+                            ctx.font = Chart.helpers.toFontString({
+                                size: fontSize,
+                                style: fontStyle,
+                                family: fontFamily,
+                            });
+
+                            ctx.textAlign = 'left';
+                            ctx.textBaseline = 'top';
+                            var lines = centerConfig.text.split('\n'); // Split the text into lines
+
+                            // Define a line height based on the font size
+                            var lineHeight = fontSize + 2.5;
+
+                            var topPadding = 10;
+                            var widthPadding = 10;
+
+                            var maxWidth = 0;
+                            lines.forEach(function(line) {
+                                var lineWidth = ctx.measureText(line).width;
+                                if (lineWidth > maxWidth) {
+                                    maxWidth = lineWidth;
+                                }
+                            });
+
+                            // Calculate the box width as a percentage of the chart width
+                            var boxWidth = maxWidth + 2 * widthPadding;
+                            // Calculate the box height based on the number of lines and line height
+                            var boxHeight = lines.length * lineHeight - 10;
+
+                            // Ensure the boxWidth does not exceed the chart area width
+                            if (boxWidth > chart.chartArea.width) {
+                                boxWidth = chart.chartArea.width;
+                            }
+
+                            var x = chart.chartArea.right - boxWidth; // Calculate x based on the boxWidth
+                            var y = chart.chartArea.top + topPadding; // Start at the top of the chart
+
+                            ctx.fillStyle = 'rgba(255, 207, 135, 0.1)'; // Set the color of the box
+                            ctx.fillRect(x - 5, y - 5, boxWidth, boxHeight); // Draw the box
+                            ctx.fillStyle = 'black'; // Set the color of the text
+
+                            lines.forEach(function(line, i) {
+                                ctx.fillText(line, x, y + (i * lineHeight)); // Draw each line separately
+                            });
+                        }
+                    };
+
+                    // Then it's registered into the Chart.js object. It can actually be used in any chart we create now, that why it only has to be registered once for both charts..
+                    Chart.register(beforeDrawPlugin);
+
+                    // These lines are creating arrays from the types and statuses arrays, but only with the unique values.
+                    // A Set is an object that only allows unique values. So new Set(response.xxx) is creating Sets from those arrays and those sets inherently only contain the unique values in the array.
+                    // The ... is the spread operator. It sort of "breaks down" an iterable that's passed into it's individual parts.
+                    // So it's passed a set containing unique types/statuses and it pulls out those unique types/statuses.
+                    // Then this is all wrapped in [] so it's creating an array from those types/statuses that ... pulled out of the Set.
+                    // Update: throwing a sort() on the end of these so that the checkbox options are in alphabetical order when they're displayed to the user.
+                    var transactionTypes = [...new Set(types)].sort();
+                    var transactionStatuses = [...new Set(statuses)].sort();
+                    var transactionCardTypes = [...new Set(cardTypes)].sort();
+
+                    // Checking that the arrays are accurate.
+                    console.log("Transaction types array: ", transactionTypes);
+                    console.log("Transaction statuses array: ", transactionStatuses);
+
+                    // All three of the below forEach functions perform the same task; automatically add buttons to the checkbox sections.
+                    // We take the 3 arrays we just created^ and run forEach on all of them. Each individual item in the arrays is used as the label and value for each button.
+                    // Because the arrays inherently list each option one time, we just need to go through and create one button for each item in the array.
+                    
+                    // Update; added styles here. Since these are generated programmatically, the styles in the stylesheet don't seem to apply. Doing it here instead.
+                    // Add checkboxes for each transaction type
+                    transactionTypes.forEach(function(type) {
+                        $('#transaction-types-line-chart').append('<input type="checkbox" checked value="' + type + '"><span></span><span style="color: #881EE4;">' + type + '</span><br>');
+                        $('#transaction-types-bar-chart').append('<input type="checkbox" checked value="' + type + '"><span></span><span style="color: #881EE4;">' + type + '</span><br>');
+                    });
+
+                    // Add checkboxes for each transaction status
+                    transactionStatuses.forEach(function(status) {
+                        $('#transaction-statuses-line-chart').append('<input type="checkbox" checked value="' + status + '"><span></span><span style="color: #a344f7;">' + status + '</span><br>');
+                        $('#transaction-statuses-bar-chart').append('<input type="checkbox" checked value="' + status + '"><span></span><span style="color: #a344f7;">' + status + '</span><br>');
+                    });
+
+                    // Add checkboxes for each transaction card type
+                    transactionCardTypes.forEach(function(type) {
+                        $('#transaction-card-types-line-chart').append('<input type="checkbox" checked value="' + type + '"><span></span><span style="color: #a344f7;">' + type + '</span><br>');
+                        $('#transaction-card-types-bar-chart').append('<input type="checkbox" checked value="' + type + '"><span></span><span style="color: #a344f7;">' + type + '</span><br>');
+                    });
+
+                    // Function to draw the chart
+                    function drawChart() {
+                        // Check if the chart exists, then destroy it if it does.
+                        if (transactionChart) {
+                            transactionChart.destroy();
+                        }
+
+                        var selectedTypes = $('#transaction-types-line-chart input:checked').map(function() {
+                            return this.value;
+                        }).get();
+
+                        var selectedStatuses = $('#transaction-statuses-line-chart input:checked').map(function() {
+                            return this.value;
+                        }).get();
+
+                        var selectedCardTypes = $('#transaction-card-types-line-chart input:checked').map(function() {
+                            return this.value;
+                        }).get();
+
+                        // Now that we're just setting the x axis as the original, full createdAt array, the filteredIndex array is not necessary.
+                        // Now instead, filteredDates gets added to in a similar manner as filteredAmounts.
+                        // If the transaction in createdAt passes the filter, it gets added to array in the correct index.
+                        // Otherwise, null is thrown in to keep the index accurate.
+                        // This isn't actually being used anywhere rn, but maybe in the future?
+                        // Update: it became useful! Passing this into fillSearchResultsInfo along with the other arrays I'm building the same way.
+                        // Also, just realized I had these using the original response.xxx arrays instead of the reversed ones. Fixed that.
+                        // 2nd update: Just using the filterArrays() function to generate these arrays now.
+                        var filteredDates = filterArrays(createdAt, selectedTypes, selectedStatuses, selectedCardTypes);
+
+                        // Since we're keeping the x axis consistent now, changed how the transactions are filtered.
+                        // Now, in order to keep this filteredAmounts array at the same length as the original array, we throw null values in the place of the original filtered out transaction.
+                        // If the txn passes the filters, it gets added to the array. If it does not, null gets thrown in.
+                        // This is important bc Chart.js will ignore a null value. So doing it like this means that only the transactions that pass the filter will show up in the graph.
+                        var filteredAmounts = filterArrays(amounts, selectedTypes, selectedStatuses, selectedCardTypes);
+
+                        // Filtered array for the transaction IDs.
+                        var filteredIDs = filterArrays(ids, selectedTypes, selectedStatuses, selectedCardTypes);
+
+                        // Filtered array for the statuses.
+                        var filteredStatuses = filterArrays(statuses, selectedTypes, selectedStatuses, selectedCardTypes);
+
+                        // Filtered array for the types.
+                        var filteredTypes = filterArrays(types, selectedTypes, selectedStatuses, selectedCardTypes);
+
+                        // Filtered array for the card types.
+                        var filteredCardTypes = filterArrays(cardTypes, selectedTypes, selectedStatuses, selectedCardTypes);
+
+                        console.log("filteredDates: ", filteredDates);
+                        console.log("filteredAmounts: ", filteredAmounts);
+                        console.log("filteredIDs: ", filteredIDs);
+                        console.log("filteredStatuses: ", filteredStatuses);
+                        console.log("filteredTypes: ", filteredTypes);
+                        console.log("filteredCardTypes: ", filteredCardTypes);
+
+                        let lineChartXAxis = createdAt.map(date => {
+                            return moment(date, 'MMMM Do, YYYY - h:mm A').format('YYYY-MM-DD');
+                        });
+
+                        var ctx = document.getElementById('transaction-line-chart');
+                        transactionChart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: lineChartXAxis,
+                                datasets: [{
+                                    label: 'Transactions',
+                                    data: filteredAmounts,
+                                    backgroundColor: function(context) {
+                                        var index = context.dataIndex;
+                                        var status = filteredStatuses[index];
+                                        switch(status) {
+                                            case 'Settled':
+                                            case 'Submitted For Settlement':
+                                            case 'Settling':
+                                            case 'Authorized':
+                                            case 'Settlement Pending':
+                                            case 'Settlement Confirmed':
+                                                return 'green';
+                                            case 'Processor Declined':
+                                                return 'red';
+                                            case 'Gateway Rejected':
+                                                return 'blue';
+                                            default:
+                                                return '#FF8E51';
+                                        }
+                                    },
+                                    borderColor: '#FF8E51',
+                                    borderWidth: 1,
+                                    spanGaps: true,
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            // Setting the Y axis ticks to two decimal places and adding a dollar sign.
+                                            callback: function(value, index, values) {
+                                                return '$' + value.toFixed(2);
+                                            }
+                                        }
+                                    }
+                                },
+                                // Adding an onclick handler which triggers when a datapoint in the graph is clicked.
+                                // It leads to the URL for that transaction in the BT Control Panel.
+                                // Update: moving this inside the chart config.
+                                onClick: function(evt) {
+                                    var chart = this;
+                                    // Once the user clicks somewhere on the chart, activePoints is filled with an array containing all of the datapoints in the graph.
+                                    var activePoints = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                                    // If the user didn't click on a datapoint specifically, that activePoints array will be empty, hence less than 0 and so we don't do anything more.
+                                    if (activePoints.length > 0) {
+                                        console.log(activePoints);
+                                        // If they clicked on a datapoint, activePoints will be filled with data and so we do all of this.
+                                        // The 'nearest' parameter in getElementsAtEventForMode means that the function returns the datapoints nearest to where we clicked.
+                                        // If we had mulltipe datapoints at the same location, the activePoints array would fill with all of them.
+                                        // In this case, the graph only has one datapoint in any given location so activePoints always has a length of 1.
+
+                                        // So now we create a var containing the object with that 1 datapoint in activePoints.
+                                        var firstPoint = activePoints[0];
+                                        // That object contains an index which is it's position in the dataset that the graph was created from.
+                                        // So if it was the 4 datapoint, the index here will be 3.
+                                        // Updating this to use the filtered index we used above. Now, it'll pull the transaction from the index that was filterd with the checkboxes.
+                                        var index = firstPoint.index;
+                                        // Now we take that index and index the ids array we got back from the AJAX call.
+                                        // The correct transaction ID will be pulled here since the graph was created from that ids array.
+                                        var transactionId = ids[index];
+                                        // Merchant ID is now pulled from the .env file.
+                                        var merchantId = "{{merchantId}}";
+
+                                        // Constructing the URL and opening it in a new tab.
+                                        var url = 'https://sandbox.braintreegateway.com/merchants/' + merchantId + '/transactions/' + transactionId;
+                                        window.open(url, '_blank');
+                                    }
+                                },
+                                // It's working! tooltip is nested inside of plugins. Now it shows a proper label.
+                                plugins: {
+                                    tooltip: {
+                                        callbacks: {
+                                            // Filtered index is not necessary anymore, so just grabbing the original index returned here.
+                                            title: function(context) {
+                                                var index = context[0].dataIndex;
+                                                var transactionId = ids[index];
+                                                return "#" + (index + 1) + ' - Transaction ID: ' + transactionId;
+                                            },
+                                            label: function(context) {
+                                                var index = context.dataIndex;
+                                                var amount = parseFloat(amounts[index]).toLocaleString('en-US', {minimumFractionDigits: 2});
+                                                var status = statuses[index];
+                                                var cardType = cardTypes[index];
+                                                var type = types[index];
+                                                var date = createdAt[index];
+
+                                                return [
+                                                    'Amount: $' + amount,
+                                                    'Status: ' + status,
+                                                    'Card Type: ' + cardType,
+                                                    'Type: ' + type,
+                                                    'Date: ' + date
+                                                ];
+                                            }
+                                        }
+                                    },
+                                    zoom: {
+                                        pan: {
+                                            enabled: true,
+                                            mode: "xy",
+                                            threshold: "20",
+                                            onPan: function({chart}) {
+                                                onPanChartFunctionLineChart ({chart}, "line-chart-panning-message");
+                                            },
+                                            onPanComplete: function() {
+                                                onPanCompleteChartFunction ("line-chart-panning-message");
+                                            }
+                                        },
+                                        limits: {
+                                            // These are essentially just placeholder values now.
+                                            // The graph errors out if I remove the object altogether so we just leave this as and the values get replaced by this line: transactionBarChart.options.plugins.zoom.limits.y = {min: 0, max: originalMaxY};
+                                            y: {min: 0, max: 100}
+                                        },
+                                        zoom: {
+                                            wheel: {
+                                                enabled: true,
+                                                speed: 0.005,
+                                                mode: 'xy',
+                                                modifierKey: "shift"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                        setPanMode(transactionChart);
+
+                        originalMaxYLineChart = transactionChart.scales['y'].max;
+                        console.log("Original upper Y axis limit, line chart: " + originalMaxYLineChart);
+                        transactionChart.options.plugins.zoom.limits.y = {min: 0, max: originalMaxYLineChart};
+
+                        // Generate the information from the search results. Has to be done after the chart already exists so we call it after drawChart().
+                        // Moving this inside of drawChart() so that it's called every time a filter is clicked. The chart breaks otherwise.
+                        // The filtered arrays are passed into here now so that the information in the textbox updates based on the filters. If a transaction is filtered out, it's not used in any of the counts now.
+                        fillSearchResultsInfo(filteredDates, filteredAmounts, filteredIDs, filteredStatuses, filteredTypes, filteredCardTypes);
+
+                        // Adding the same pop out functionality to the line chart as well.
+                        // Adding a "pop out" functionality. User can click a button and the chart fills the entire browser.
+                        popOutButton = document.getElementById("line-chart-pop-out");
+                        popOutButton.onclick = function() {
+                            // Creating an "overlay" div where the chart will be placed. This will be placed on top of the browser.
+                            var overlay = document.createElement('div');
+                            overlay.style.position = 'fixed';
+                            overlay.style.top = 0;
+                            overlay.style.left = 0;
+                            overlay.style.width = '100%';
+                            overlay.style.height = '100%';
+                            overlay.style.backgroundColor = "#d9adff";
+                            // This zIndex makes it sit on top of everything on the page.
+                            overlay.style.zIndex = 1000;
+
+                            // Create a new div for the onPan message, this one for the overlay.
+                            var overlayMessageDiv = document.createElement("div");
+                            overlayMessageDiv.id = "overlay-line-chart-message-div";
+                            overlayMessageDiv.style.position = 'absolute';
+                            overlayMessageDiv.style.bottom = '50px';
+                            overlayMessageDiv.style.right = '10px';
+                            overlayMessageDiv.style.zIndex = 1001;
+                            overlay.appendChild(overlayMessageDiv);
+
+                            // Creating a button that allows to user to close the popped out graph.
+                            var closeButton = document.createElement('button');
+                            closeButton.innerHTML = 'Close';
+                            closeButton.style.position = 'absolute';
+                            closeButton.style.top = '10px';
+                            closeButton.style.left = '60px';
+                            closeButton.id = "line-chart-pop-out-close-button";
+                            closeButton.style.zIndex = 1001;
+                            closeButton.onclick = function(event) {
+                                // Prevent the event from bubbling up to the overlay.
+                                event.stopPropagation();
+
+                                // Hide the cloned chart and show the original chart when the close button is clicked
+                                transactionChart.canvas.style.display = 'block';
+                                clonedCanvas.style.display = 'none';
+                                overlay.removeChild(overlayMessageDiv);
+                                document.body.removeChild(overlay);
+                            };
+                            overlay.appendChild(closeButton);
+
+                            // Create a new canvas for the cloned chart
+                            var clonedCanvas = transactionChart.canvas.cloneNode(true);
+                            clonedCanvas.style.width = '80vw';
+                            clonedCanvas.style.height = '80vh';
+                            clonedCanvas.style.position = 'absolute';
+                            clonedCanvas.style.top = '50%';
+                            clonedCanvas.style.left = '50%';
+                            clonedCanvas.style.transform = 'translate(-50%, -50%)';
+                            overlay.appendChild(clonedCanvas);
+
+                            // Add the overlay to the body
+                            document.body.appendChild(overlay);
+
+                            // Hide the original chart and show the cloned chart
+                            transactionChart.canvas.style.display = 'none';
+                            clonedCanvas.style.display = 'block';
+
+                            var clonedCtx = clonedCanvas.getContext("2d");
+
+                            // Create the cloned chart with the same onClick function
+                            var clonedBarChart = new Chart(clonedCtx, {
+                                type: transactionChart.config.type,
+                                data: transactionChart.config.data,
+                                options: {
+                                    ...transactionChart.config.options,
+                                    plugins: {
+                                        ...transactionChart.config.options.plugins,
+                                        zoom: {
+                                            ...transactionChart.config.options.plugins.zoom,
+                                            pan: {
+                                                ...transactionChart.config.options.plugins.zoom.pan,
+                                                onPan: function({chart}) {
+                                                    onPanChartFunctionLineChart ({chart}, "overlay-line-chart-message-div");
+                                                },
+                                                onPanComplete: function() {
+                                                    onPanCompleteChartFunction ("overlay-line-chart-message-div");
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+
+                            setPanMode(clonedBarChart);
+                        };
+                    }
+
+                    // This function is generating the dates that will be the x axis on the bar chart.
+                    // Doing this in a separate function in order to avoid generating this array over and over each time drawBarChart() is called.
+                    // drawBarChart() will be called each time a filter is applied, but the x axis remains consistent anyway. So it would be a waste to do this insde of drawBarChart().
+                    function generateDatesForBarChart(thisStartDate, thisEndDate) {
+                        var dates = [];
+                        var currentDate = moment(thisStartDate);
+
+                        while (currentDate <= moment(thisEndDate)) {
+                            dates.push(currentDate.format('YYYY-MM-DD'));
+                            currentDate = currentDate.add(1, 'days');
+                        }
+
+                        return dates;
+                    }
+
+                    // This function is generating the actual data that will appear in the bar chart.
+                    function generateDataForBarChart(dates, createdAt, amounts, statuses, ids) {
+
+                        // Create 3 new arrays of the same length as the dates array (to be pulled from generateDatesForBarChart).
+                        // Immediately fill every space with 0 so that if a date doesn't have any transactions, it still displays 0.
+                        // One array for successful txn amounts, one for declined amounts, one for rejected amounts.
+                        let dataSuccessful = new Array(dates.length).fill(0);
+                        let dataDeclined = new Array(dates.length).fill(0);
+                        let dataRejected = new Array(dates.length).fill(0);
+
+                        // The tooltip label for the bar chart will display all of the transactions for each status and each day.
+                        // To do that, we're going to build the arrays here in a similar way as we do the amount arrays.
+                        // The difference is though, this is creating arrays of the same length as dates and filling the arrays with more unique arrays.
+                        // So these are arrays of unique arrays. The reason we need to do this is:
+                        // 1. These are to be filled with strings, not just amounts.
+                        // 2. More importantly, they have to be separated by date. This way, each tooltip label will only display the txn IDs that make up that exact bar.
+                        let idsSuccessful = new Array(dates.length).fill().map(() => []);
+                        let idsDeclined = new Array(dates.length).fill().map(() => []);
+                        let idsRejected = new Array(dates.length).fill().map(() => []);
+
+                        // Formatting all of the dates back into the YYYY-MM-DD format to match the format in the dates array.
+                        let createdAtFormatted = createdAt.map(dateStr => {
+                            return moment(dateStr, 'MMMM Do, YYYY - h:mm A').format('YYYY-MM-DD');
+                        });
+
+                        // Initializing an index variable outside of the for loop.
+                        let currentDateIndex = 0;
+                        // Iterating over the createdAtFormatted array we just created.
+                        for (let i = 0; i < createdAtFormatted.length; i++) {
+
+                            // This while loop advances the currentDateIndex which is used to iterate move across the dates array.
+                            // The first condition checks if createdAtFormatted[i] is greater/later than dates[currentDateIndex].
+                            // If that's the case, then we can move to the next spot in the dates array so we increment currentDateIndex by 1.
+                            // The second index just makes sure currentDateIndex doesn't go past the length of dates to avoid out of bounds errors.
+                            while (createdAtFormatted[i] > dates[currentDateIndex] && currentDateIndex < dates.length - 1) {
+                                currentDateIndex++;
+                            }
+
+                            // Checkiing that the date we're currently on in createdAtFormatted and the date the currentDateIndex is on in dates are the same.
+                            // If so, add the i index of amounts into to the currentDateIndex index in the data array we're building here.
+                            // Basically, toss the amount of the transaction into the array if we're on equal dates in both arrays.
+                            if (createdAtFormatted[i] === dates[currentDateIndex]) {
+                                if (statuses[i] === "Settled" || statuses[i] === "Authorized" || statuses[i] === "Settling" || statuses[i] === "Submitted For Settlement") {
+                                    dataSuccessful[currentDateIndex] += amounts[i];
+                                    idsSuccessful[currentDateIndex].push(ids[i]);
+                                }
+                                else if (statuses[i] === "Processor Declined") {
+                                    dataDeclined[currentDateIndex] += amounts[i];
+                                    idsDeclined[currentDateIndex].push(ids[i]);
+                                }
+                                else if (statuses[i] === "Gateway Rejected") {
+                                    dataRejected[currentDateIndex] += amounts[i];
+                                    idsRejected[currentDateIndex].push(ids[i]);
+                                }
+                            }
+                        }
+
+                        // Return all arrays in one object .
+                        return [dataSuccessful, dataDeclined, dataRejected, idsSuccessful, idsDeclined, idsRejected];
+                    }
+
+                    function drawBarChart(dates) {
+                        if (transactionBarChart) {
+                            transactionBarChart.destroy();
+                        }
+
+                        // Creating the selected types arrays in the same way we do for the line chart.
+                        // Have to do this separately for each one to allow the user to choose different filters for each graph.
+                        var selectedTypesBarChart = $('#transaction-types-bar-chart input:checked').map(function() {
+                            return this.value;
+                        }).get();
+
+                        var selectedStatusesBarChart = $('#transaction-statuses-bar-chart input:checked').map(function() {
+                            return this.value;
+                        }).get();
+
+                        var selectedCardTypesBarChart = $('#transaction-card-types-bar-chart input:checked').map(function() {
+                            return this.value;
+                        }).get();
+
+                        console.log("The bar chart types: ", selectedTypesBarChart);
+                        console.log("The bar chart statuses: ", selectedStatusesBarChart);
+                        console.log("The bar chart card types: ", selectedCardTypesBarChart);
+
+                        // Similarly, creating the filtered arrays in the same way.
+                        // Update: Creating these using the filterArrays() function now.
+                        // Filtered array for the dates.
+                        var filteredDatesBarChart = filterArrays(createdAt, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);
+
+                        // Filtered array for the amounts.
+                        var filteredAmountsBarChart = filterArrays(amounts, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);
+
+                        // Filtered array for the transaction IDs.
+                        var filteredIDsBarChart = filterArrays(ids, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);
+
+                        // Filtered array for the statuses.
+                        var filteredStatusesBarChart = filterArrays(statuses, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);
+
+                        // Filtered array for the types.
+                        var filteredTypesBarChart = filterArrays(types, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);
+
+                        // Filtered array for the card types.
+                        var filteredCardTypesBarChart = filterArrays(cardTypes, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);
+
+                        // The amounts array is all strings so we convert them to numbers.
+                        var fixedAmounts = filteredAmountsBarChart.map(Number);
+
+                        console.log("Bar chart amounts after formatting: ", fixedAmounts);
+
+                        // The data returned by the generateDataForBarChart function above.
+                        var [dataSuccessful, dataDeclined, dataRejected, idsSuccessful, idsDeclined, idsRejected] = generateDataForBarChart(dates, createdAt, fixedAmounts, filteredStatusesBarChart, filteredIDsBarChart);
+
+                        var ctx = document.getElementById("transaction-bar-chart");
+                        transactionBarChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: dates,
+                                datasets: [{
+                                    label: "Successful Transactions",
+                                    data: dataSuccessful,
+                                    backgroundColor: "green",
+                                    borderColor: "green",
+                                    borderWidth: 0.5,
+                                    categoryPercentage: 1,
+                                    barPercentage: 1
+                                },
+                                {
+                                    label: "Processor Declined Transactions",
+                                    data: dataDeclined,
+                                    backgroundColor: "red",
+                                    borderColor: "red",
+                                    borderWidth: 0.5,
+                                    categoryPercentage: 1,
+                                    barPercentage: 1
+                                },
+                                {
+                                    label: "Gateway Rejected Transactions",
+                                    data: dataRejected,
+                                    backgroundColor: "blue",
+                                    borderColor: "blue",
+                                    borderWidth: 0.5,
+                                    categoryPercentage: 1,
+                                    barPercentage: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            callback: function(value, index, values) {
+                                                return '$' + value.toFixed(2);
+                                            }
+                                        }
+                                    }
+                                },
+                                // onclick function for the bar chart. This will create an advanced transaction search in the Control Panel that pulls all of the transactions that make up the bar the user is clicking.
+                                // Update: Finally figured this out! The original onClick referenced this transactionBarChart object. So when it went to the clone, that caused conflicts.
+                                // Updated this to reference the chart itself using this, then we call that chart in the function. So now the function references whatever chart it's inside of.
+                                onClick: function(evt) {
+                                    var chart = this;
+                                    // Filling activeElements with the same getElementsAtEventForMode() function as in the other onclick.
+                                    // Basically returns an array with all of the elements at the spot of the chart where the user clicks.
+                                    var activeElements = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                                    if (activeElements.length > 0) {
+                                        var firstPoint = activeElements[0];
+                                        var index = firstPoint.index;
+                                        // This should let us know which of the bars the user clicked on. 0 = successful, 1 = processor declined, 2 = gw rejected.
+                                        var datasetIndex = firstPoint.datasetIndex;
+                                        console.log("The bar the user clicked: " + datasetIndex);
+
+                                        // Advanced txn search demands that the date be formatted in MM/DD/YYYY format. Using moment to re-format the date as such.
+                                        var date = moment(dates[index]).format("MM/DD/YYYY");
+                                        console.log(date);
+
+                                        // These are all of the possible card type values accepted as card type parameters by the adv txn search URL.
+                                        var allCardTypes = ['Visa', 'MasterCard', 'American%20Express', 'Discover', 'JCB', 'Maestro', 'UnionPay', 'Elo', 'Hiper', 'Hipercard'];
+                                        // All possible payment method type strings that the URL search string accepts.
+                                        var allPaymentInstrumentTypes = ["CreditCardDetail", "ApplePayDetail", "VenmoAccountDetail", "PayPalDetail", "LocalPaymentDetail", "SamsungPayAttributesSnapshot", "Unknown", "AndroidPayCardDetail", "AndroidPayNetworkTokenDetail", "PaymentReaderAttributesSnapshot"];
+
+                                        // This function returns the card type parameter search string to be added to the URL.
+                                        function generateCardTypeParams(allCardTypes) {
+                                            // We define the string to be returned as an empty string.
+                                            var params = '';
+                                            // Creating an array consisting of the unchecked card type checkboxes.
+                                            var uncheckedCardTypes = $('#transaction-card-types-bar-chart input:not(:checked)').map(function() {
+                                                return this.value;
+                                            }).get();
+
+                                            console.log("Unchecked card types array: ", uncheckedCardTypes);
+
+                                            // The way the advanced txn search URL logic works is, if no parameters for any one of the categories is entered, then the search includes ALL of the parameters.
+                                            // So if we don't include any card type parameters, the search will automatically check all of them.
+                                            // With that in mind, we immediately check whether or not the user has unchecked any card types.
+                                            // If they have, uncheckedCardTypes will be populated/have a length greated than 0. If that's the case, then we need to make sure that that card type is not included in the parameters.
+                                            // If not though, meaning if they haven't unchecked any card types, then there's no need to include any card type parameters.
+                                            // That means they want all card types included so we just return the empty string; no card type &search strings to be included in the search at all.
+                                            if (uncheckedCardTypes.length == 0) {
+                                                return params;
+                                            }
+                                            else {
+                                                // Quick formatting to remove spaces and replace them with %20.
+                                                // Basically just doing that for Amex. The checkbox returns the value as "American Express" whereas it's "American%20Express" in the array we're generating the strings from.
+                                                // The g there is a "global" flag. Basically tells the function to replace all occurrences of the space here, not just the first it sees.
+                                                uncheckedCardTypes = uncheckedCardTypes.map(type => type.replace(/ /g, '%20'));
+
+                                                // Using filter() to create a new array that includes all of the card types in allCardTypes, EXCEPT those that are also in uncheckedCardTypes.
+                                                // It's parsing through each element in allCardTypes and checking if the condition (!uncheckedCardTypes.includes(type)) is true.
+                                                // If it returns true, meaning that the type is not included in uncheckedCardTypes, it's added to the new checkedCardTypes array.
+                                                // If it returns false, meaning that type is in uncheckedCardTypes, then it's not included in checkedCardTypes.
+                                                var checkedCardTypes = allCardTypes.filter(type => !uncheckedCardTypes.includes(type));
+
+                                                // Now we just iterate over every element in the new checkedCardTypes array, create the &search string with that type at the end of it, and add it to params.
+                                                checkedCardTypes.forEach(type => {
+                                                    params += '&search%5Bcredit_card_card_type%5D%5B%5D=' + type;
+                                                });
+
+                                                console.log("The params we're returning: " + params);
+                                                // Returning our params var filled with a bunch of &search strings stitched together.
+                                                return params;
+                                            }
+                                        };
+
+                                        function generatePaymentInstrumentParams(allPaymentInstrumentTypes) {
+                                            var params = "";
+
+                                            var uncheckedPaymentMethodTypes = $('#transaction-types-bar-chart input:not(:checked)').map(function() {
+                                                return this.value;
+                                            }).get();
+
+                                            console.log(uncheckedPaymentMethodTypes);
+
+                                            if (uncheckedPaymentMethodTypes.length == 0) {
+                                                return params;
+                                            }
+                                            else {
+                                                // Creating a map to convert the values in uncheckedPaymentMethodTypes to corresponding values in allPaymentInstrumentTypes.
+                                                var paymentInstrumentMap = {
+                                                    'Credit Card': ['CreditCardDetail'],
+                                                    // Google Pay has two search terms, mapping this one into both.
+                                                    'Google Pay': ['AndroidPayCardDetail', 'AndroidPayNetworkTokenDetail'],
+                                                    'Apple Pay': ['ApplePayDetail'],
+                                                    'Samsung Pay': ['SamsungPayAttributesSnapshot']
+                                                };
+
+                                                // Using the map on uncheckedPaymentMethodTypes to create a new array with the values we need.
+                                                // Because Google Pay needed to be mapped to two values, we use flatMap here so make sure the array is "flattened" into one value in each space.
+                                                var uncheckedPaymentMethodTypesConverted = uncheckedPaymentMethodTypes.flatMap(paymentType => paymentInstrumentMap[paymentType]);
+                                                console.log("Payment types after formatting: ", uncheckedPaymentMethodTypesConverted);
+
+                                                // Now that the array strings are in the proper values, we can filter allPaymentInstrumentTypes in the same way as in the other function.
+                                                var checkedPaymentInstruments = allPaymentInstrumentTypes.filter(paymentInstrument => !uncheckedPaymentMethodTypesConverted.includes(paymentInstrument));
+                                                console.log("The strings are to be generated from this: ", checkedPaymentInstruments);
+
+                                                // Now we generate the strings from the new array that was created from everything in allPaymentInstrumentTypes except for what was filtered out with uncheckedPaymentMethodTypesConverted.
+                                                checkedPaymentInstruments.forEach(paymentInstrument => {
+                                                    params += "&search%5Bpayment_instrument_type%5D%5B%5D=" + paymentInstrument;
+                                                });
+
+                                                // Return the strings we just generated.
+                                                return params;
+                                            }
+                                        };
+
+                                        // This function works a bit different than the other two.
+                                        // The statuses to be included depends on both the filters and the bar the user clicked on.
+                                        // We pass the bar the user clicked on (via datasetIndex), then do the filtering depending on that value.
+                                        function generateStatusParams(datasetIndex) {
+                                            var params = "";
+
+                                            var uncheckedStatuses = $('#transaction-statuses-bar-chart input:not(:checked)').map(function() {
+                                                return this.value;
+                                            }).get();
+
+                                            // The user clicked the successful transactions bar.
+                                            if (datasetIndex == 0) {
+                                                // These are all of the statuses that the URL accepts representing successful transactions.
+                                                // We create an array with only these specifically because if the user is clicking on this bar, it will inherently only include successful values.
+                                                // By creating the array like this now, we get rid of the need to filter out unsuccessful statuses later.
+                                                var successfulStatuses = ["authorized", "submitted_for_settlement", "settlement_pending", "settlement_confirmed", "settling", "settled"];
+
+                                                // Creating a map to format the statuses from the checkbox values into values the URL accepts
+                                                var statusMap = {
+                                                    "authorized": "authorized",
+                                                    "Submitted For Settlement": "submitted_for_settlement",
+                                                    "Settlement Pending": "settlement_pending",
+                                                    "Settlement Confirmed": "settlement_confirmed",
+                                                    "Settling": "settling",
+                                                    "Settled": "settled"
+                                                };
+
+                                                // Formatting the uncheckedStatuses array we created.
+                                                var uncheckedStatusesConverted = uncheckedStatuses.map(status => statusMap[status] || status);
+                                                console.log("Successful unchecked statuses after formatting: ", uncheckedStatusesConverted);
+
+                                                // Now generating the array that the search strings will be created from. This is where using the successful status array helped us.
+                                                var checkedStatuses = successfulStatuses.filter(status => !uncheckedStatusesConverted.includes(status));
+                                                console.log("The array to generate the successful status params from: ", checkedStatuses);
+
+                                                // Generating the &search strings to be used in the URL.
+                                                checkedStatuses.forEach(status => {
+                                                    params += "&search%5Bstatus%5D%5B%5D=" + status;
+                                                });
+
+                                                return params;
+                                            }
+                                            // The user clicked the processor declined bar.
+                                            else if (datasetIndex == 1) {
+                                                // There's only one single status that corresponds to processor declines: processor_declined
+                                                // With that in mind, there's no filtering or anything like that to be done, just add the string to params and return it.
+                                                params += "&search%5Bstatus%5D%5B%5D=processor_declined";
+                                                return params;
+                                            }
+                                            // The user clicked the gateway rejected bar.
+                                            else {
+                                                // Similar situation here as with processor declines, except that there are many GW rejection statuses.
+                                                // Regardless, we don't do any sort of filtering between GW rejection reasons - they're just all tossed together.
+
+                                                // As such, all we have to do is create a GW rejection status array here.
+                                                var gatewayRejectedStatuses = ["three_d_secure", "avs", "cvv", "avs_and_cvv", "risk_threshold", "fraud", "application_incomplete", "duplicate", "excessive_retry", "manual_transactions_disabled", "payment_method_blocked", "token_issuance", "union_pay_enrollment_required"];
+
+                                                // Then just generate the &search strings from all of those strings and add them into params.
+                                                gatewayRejectedStatuses.forEach(status => {
+                                                    params += "&search%5Bstatus%5D%5B%5D=" + status;
+                                                });
+
+                                                return params;
+                                            }
+                                            // We don't have to worry about any other datasetIndex value cases. The bar chart only has 3 datasets so there's no possibility datasetIndex will be anything but 0, 1, or 2.
+                                        };
+
+                                        var cardTypeParams = generateCardTypeParams(allCardTypes);
+                                        console.log("The cardTypeParams generated: " + cardTypeParams);
+                                        var paymentMethodTypeParams = generatePaymentInstrumentParams(allPaymentInstrumentTypes);
+                                        console.log("The payment method types generated: " + paymentMethodTypeParams);
+                                        var statusParams = generateStatusParams(datasetIndex);
+                                        console.log("The statuses generated: " + statusParams);
+
+                                        var merchantId = "{{merchantId}}";
+
+                                        var url = 'https://sandbox.braintreegateway.com/merchants/' + merchantId + '/transactions/advanced_search?utf8=%E2%9C%93&search%5Bcreated_at%5D%5Bchecked%5D=created&search%5Bcreated_at%5D%5Bmax%5D=' + date + '&search%5Bcreated_at%5D%5Bmax_hour%5D=23&search%5Bcreated_at%5D%5Bmax_minute%5D=59&search%5Bcreated_at%5D%5Bmin%5D=' + date + cardTypeParams + paymentMethodTypeParams + statusParams + "&search%5Btype%5D%5B%5D=sale";
+                                        window.open(url, '_blank');
+                                    }
+                                },
+                                plugins: {
+                                    tooltip: {
+                                        callbacks: {
+                                            // Filtered index is not necessary anymore, so just grabbing the original index returned here.
+                                            title: function(context) {
+                                                var index = context[0].dataIndex;
+                                                var date = moment(dates[index], 'YYYY-MM-DD').format('MMMM Do, YYYY');
+                                                return "Date: " + date;
+                                            },
+                                            label: function(context) {
+                                                var index = context.dataIndex;
+                                                var datasetIndex = context.datasetIndex;
+                                                var total = context.raw;
+                                                var totalFormatted = parseFloat(total).toLocaleString('en-US', {minimumFractionDigits: 2});
+                                                var ids;
+                                                if (datasetIndex === 0) {
+                                                    ids = idsSuccessful[index];
+                                                } else if (datasetIndex === 1) {
+                                                    ids = idsDeclined[index];
+                                                } else {
+                                                    ids = idsRejected[index];
+                                                }
+                                                var labels = ["Total: $" + totalFormatted];
+                                                labels.push("Transaction IDs:");
+                                                ids.forEach(function(id) {
+                                                    labels.push(id);
+                                                });
+                                                return labels;
+                                            }
+                                        }
+                                    },
+                                    zoom: {
+                                        pan: {
+                                            enabled: true,
+                                            mode: "xy",
+                                            threshold: "20",
+                                            onPan: function({chart}) {
+                                                onPanChartFunction ({chart}, "bar-chart-panning-message");
+                                            },
+                                            onPanComplete: function() {
+                                                onPanCompleteChartFunction ("bar-chart-panning-message");
+                                            }
+                                        },
+                                        limits: {
+                                            // These are essentially just placeholder values now.
+                                            // The graph errors out if I remove the object altogether so we just leave this as and the values get replaced by this line: transactionBarChart.options.plugins.zoom.limits.y = {min: 0, max: originalMaxY};
+                                            y: {min: 0, max: 100}
+                                        },
+                                        zoom: {
+                                            wheel: {
+                                                enabled: true,
+                                                speed: 0.01,
+                                                mode: 'xy',
+                                                modifierKey: "shift"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                        setPanMode(transactionBarChart);
+
+                        // This is setting the limits of the zoom plugin AFTER the chart is initially created.
+                        // First, we extract the top y value that was automatically set by Chart.js, then we add the limits in after the fact.
+                        // Now, when the user zooms all the way out, the chart will look exactly the same as it originally did before all of the zooming.
+                        // Much better solution than the max array stuff we were doing!
+                        originalMaxYBarChart = transactionBarChart.scales['y'].max;
+                        console.log("Original upper Y axis limit, bar chart: " + originalMaxYBarChart);
+                        transactionBarChart.options.plugins.zoom.limits.y = {min: 0, max: originalMaxYBarChart};
+
+                        fillBarChartInfo(filteredDatesBarChart, filteredAmountsBarChart, filteredIDsBarChart, filteredStatusesBarChart, filteredTypesBarChart, filteredCardTypesBarChart);
+
+                        // Adding a "pop out" functionality. User can click a button and the chart fills the entire browser.
+                        popOutButton = document.getElementById("bar-chart-pop-out");
+                        popOutButton.onclick = function() {
+                            // Creating an "overlay" div where the chart will be placed. This will be placed on top of the browser.
+                            var overlay = document.createElement('div');
+                            overlay.style.position = 'fixed';
+                            overlay.style.top = 0;
+                            overlay.style.left = 0;
+                            overlay.style.width = '100%';
+                            overlay.style.height = '100%';
+                            overlay.style.backgroundColor = "rgb(224, 134, 85)";
+                            // This zIndex makes it sit on top of everything on the page.
+                            overlay.style.zIndex = 1000;
+
+                            // Create a new div for the onPan message, this one for the overlay.
+                            var overlayMessageDiv = document.createElement("div");
+                            overlayMessageDiv.id = "overlay-bar-chart-message-div";
+                            overlayMessageDiv.style.position = 'absolute';
+                            overlayMessageDiv.style.bottom = '50px';
+                            overlayMessageDiv.style.right = '10px';
+                            overlayMessageDiv.style.zIndex = 1001;
+                            overlay.appendChild(overlayMessageDiv);
+
+                            // Creating a button that allows to user to close the popped out graph.
+                            var closeButton = document.createElement('button');
+                            closeButton.innerHTML = 'Close';
+                            closeButton.style.position = 'absolute';
+                            closeButton.style.top = '10px';
+                            closeButton.style.left = '60px';
+                            closeButton.id = "bar-chart-pop-out-close-button";
+                            closeButton.style.zIndex = 1001;
+                            closeButton.onclick = function(event) {
+                                // Prevent the event from bubbling up to the overlay.
+                                event.stopPropagation();
+
+                                // Hide the cloned chart and show the original chart when the close button is clicked
+                                transactionBarChart.canvas.style.display = 'block';
+                                clonedCanvas.style.display = 'none';
+                                overlay.removeChild(overlayMessageDiv);
+                                document.body.removeChild(overlay);
+                            };
+                            overlay.appendChild(closeButton);
+
+                            // Create a new canvas for the cloned chart
+                            var clonedCanvas = transactionBarChart.canvas.cloneNode(true);
+                            clonedCanvas.style.width = '80vw';
+                            clonedCanvas.style.height = '80vh';
+                            clonedCanvas.style.position = 'absolute';
+                            clonedCanvas.style.top = '50%';
+                            clonedCanvas.style.left = '50%';
+                            clonedCanvas.style.transform = 'translate(-50%, -50%)';
+                            overlay.appendChild(clonedCanvas);
+
+                            // Add the overlay to the body
+                            document.body.appendChild(overlay);
+
+                            // Hide the original chart and show the cloned chart
+                            transactionBarChart.canvas.style.display = 'none';
+                            clonedCanvas.style.display = 'block';
+
+                            var clonedCtx = clonedCanvas.getContext("2d");
+
+                            // Create the cloned chart with the same onClick function
+                            var clonedBarChart = new Chart(clonedCtx, {
+                                type: transactionBarChart.config.type,
+                                data: transactionBarChart.config.data,
+                                options: {
+                                    ...transactionBarChart.config.options,
+                                    plugins: {
+                                        ...transactionBarChart.config.options.plugins,
+                                        zoom: {
+                                            ...transactionBarChart.config.options.plugins.zoom,
+                                            pan: {
+                                                ...transactionBarChart.config.options.plugins.zoom.pan,
+                                                onPan: function({chart}) {
+                                                    onPanChartFunction ({chart}, "overlay-bar-chart-message-div");
+                                                },
+                                                onPanComplete: function() {
+                                                    onPanCompleteChartFunction ("overlay-bar-chart-message-div");
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+
+                            setPanMode(clonedBarChart);
+                        };
+                    };
+
+                    // The parameters to be used to generate the dates array.
+                    var thisStartDate = $('#start-date').val();
+                    var thisEndDate = $('#end-date').val();
+
+                    // Creating the dates array with our above function.
+                    var dates = generateDatesForBarChart(thisStartDate, thisEndDate);
+
+                    console.log("The date array geneated: ", dates)
+
+                    // Draw the charts initially
+                    drawChart();
+                    drawBarChart(dates);
+
+                    // Redraw the chart whenever a checkbox is checked or unchecked.
+                    $('#transaction-types-line-chart input, #transaction-statuses-line-chart input, #transaction-card-types-line-chart input').change(drawChart);
+                    $('#transaction-types-bar-chart input, #transaction-statuses-bar-chart input, #transaction-card-types-bar-chart input').change(function() {
+                        drawBarChart(dates);
+                    });
+
+                    // Event listeners for the buttons to manually update the y axis max value.
+                    // Update: these passing the original Y Max values into these, to be used as a threshold/maximum on how high the user can set the Y max.
+                    document.getElementById('line-chart-yaxis-submit').addEventListener('click', function(event) {
+                        console.log("Line chart original max Y value: " + originalMaxYLineChart);
+                        handleYAxisSetButtonClick(event, originalMaxYLineChart);
+                    });
+                    document.getElementById('bar-chart-yaxis-submit').addEventListener('click', function(event) {
+                        console.log("Bar chart original max Y value: " + originalMaxYBarChart);
+                        handleYAxisSetButtonClick(event, originalMaxYBarChart);
+                    });
+
+                    // Hiding the spinner again once everything is done with the AJAX call.
+                    $('#spinner-overlay').hide();
+
+                    // Re-enabling the search inputs to allow the user to run a new search, if they please.
+                    $('#graph-generator').prop('disabled', false);
+                    $('#start-date').prop('disabled', false);
+                    $('#end-date').prop('disabled', false);
+
+                    // Displaying the pop out buttons now that everything is rendered.
+                    document.getElementById("bar-chart-pop-out").style.display = "block";
+                    document.getElementById("line-chart-pop-out").style.display = "block";
+
+                    // Displaying the columns (areas with checkboxes and Y max options) now that the call was successful.
+                    document.getElementById("line-chart-right-column").style.display = "block";
+                    document.getElementById("bar-chart-right-column").style.display = "block";
+                },
+                error: function(jqXHR, status, error) {
+                    console.log('AJAX call failed.');
+                    console.log('Status: ' + status);
+                    console.log('Error: ' + error);
+
+                    // Hiding the spinner when the AJAX call fails as well.
+                    $('#spinner-overlay').hide();
+
+                    // Re-enabling the inputs here as well. This way, they'll re-enable even if the AJAX call failed for whatever reason.
+                    $('#graph-generator').prop('disabled', false);
+                    $('#start-date').prop('disabled', false);
+                    $('#end-date').prop('disabled', false);
+                }
+            });
+        }
+
+        // Event listener for the user hitting Enter/Return on their keyboard inside of the date pickers.
+        $('#start-date, #end-date').on('keypress', function(event) {
+            // The Enter/Return key has a keycode of 13. So this is setting a condition for that specific key being pressed.
+            if (event.which == 13) {
+                // Once pressed, the graph-generator click event listener code is triggered. Just like if the user clicks the Search button.
+                $('#graph-generator').click();
+            }
+        });
+
+        // Event listener for the user hitting Enter/Return on their keyboard inside of the Y max inputs.
+        // Works almost the same as the above one.
+        $('#line-chart-yvalue-input, #bar-chart-yvalue-input').on('keypress', function(event) {
+            if (event.which == 13) {
+                // This function will click different buttons depending on which field the user hit enter on.
+                // So we first we grab the ID of field they entered on.
+                var yMaxFieldID = $(this).attr("id");
+                console.log("Y Max field used: " + yMaxFieldID);
+
+                // Now depending on which field they entered, we "click" the corresponding button.
+                if (yMaxFieldID === "line-chart-yvalue-input") {
+                    $('#line-chart-yaxis-submit').click();
+                }
+                else if (yMaxFieldID === "bar-chart-yvalue-input") {
+                    $("#bar-chart-yaxis-submit").click();
+                }
+            }
+        });
+
+        // This function ensures that the start date and end date the user enters for the search range is valid.
+        function datesValidator(startDate, endDate) {
+
+            // Generating todays date using moment.js.
+            const today = moment().startOf('day');
+
+            // These are all different conditions that would break the AJAX call. For each one, we have the function return false. This will be used later.
+
+            // The user entered neither a start or end date, or they enter both as invalid dates.
+            if ((startDate == "") && (endDate == "")) {
+                alert("Please enter a valid search range before generating the graphs.");
+                return false;
+            }
+            // Was hoping to enter these two as well so that the user gets slightly different messages for no dates vs. invalid dates.
+            // So if the user enters 2/31/YYYY, that date doesn't exist, but the date pickers will allow it.
+            // What happens though is that it gets returned as an empty string. So to the function, there's no difference between entering nothing and entering 2/30/YYYY.
+            // Not ideal. I'd like the user to get these messages below for entering nothing, then get the next two sets of messages for entering invalid dates.
+            // This works... for now. Will circle back.
+        /*    else if (startDate == "") {
+                alert("Please enter a start date before generating the graphs.");
+                return false;
+            }
+            else if (endDate == "") {
+                alert("Please enter an ending date before generating the graphs.");
+                return false;
+            }*/
+            // User entered an invalid date. isValid() is a moment.js function which checks if the input is an actual date.
+            // Both empty strings and a fake date (like 2/30) trigger these.
+            else if (!moment(startDate).isValid()) {
+                alert("Please enter a valid start date before generating the graphs.");
+                return false;
+            }
+            else if (!moment(endDate).isValid()) {
+                alert("Please enter a valid end date before generating the graphs.");
+                return false;
+            }
+            // User entered either date as a future date.
+            // This is where we use the today const we created above. isAfter() checks is the date comes after the date it's provided (always todays date thanks to our constant).
+            else if (moment(startDate).isAfter(today) || moment(endDate).isAfter(today)) {
+                alert("Please enter search dates from today or in the past.");
+                return false;
+            }
+            // User entered an end date that comes before the end date. So like startDate = 1/1/2024 and endDate = 1/1/2023. Doesn't make sense and it breaks the search.
+            else if (startDate > endDate) {
+                alert("The starting search date must be on or before the ending search date.");
+                return false;
+            }
+            
+            // The dates passed all checks! Return true.
+            return true;
+        };
+
+        // Event listener for the graph generator button. No graph is created until this is clicked.
+        $('#graph-generator').click(function() {
+
+            // Define the search parameters from the date inputs above.
+            var startDate = $('#start-date').val();
+            var endDate = $('#end-date').val();
+
+            console.log(startDate);
+            console.log(endDate);
+            
+            // Filtering the dates through the date validation function we made.
+            var datesValid = datesValidator(startDate, endDate);
+
+            // Adding a check to make sure the start date is before or on the same date as the end date.
+            // If it is, we move forward with emptying the checkboxes and running generateGraph() again.
+            // Without making sure of this, it surprisingly doesn't throw an error, but no data will be returned.
+            // Update: changed the check to a function which is much more comprehensive.
+            // The function returns false if the date inputs are invalid, true if they're valid. So we just need to check that it returns true here.
+            if (datesValid == true) {
+                // Search range was valid, show the spinner so the user sees that the search is working.
+                $('#spinner-overlay').show();
+
+                // Hiding the pop out buttons again, don't want the user to click them while the AJAX call is running.
+                document.getElementById("bar-chart-pop-out").style.display = "none";
+                document.getElementById("line-chart-pop-out").style.display = "none";
+
+                // Also hiding the right columns again.
+                document.getElementById("line-chart-right-column").style.display = "none";
+                document.getElementById("bar-chart-right-column").style.display = "none";
+
+                // The search has started and we don't want the user to be able to run multiple searches at once so we also immediately disable the inputs.
+                // We use prop() to access the disabled property on the elements and set that to true. That... disables them. Who'd have thought!
+                // We'll do the same thing at the end of the AJAX success call, except we set the property to false instead.
+                $('#graph-generator').prop('disabled', true);
+                $('#start-date').prop('disabled', true);
+                $('#end-date').prop('disabled', true);
+
+                // Also doing this here so that the chart is destroyed immediately once the button is clicked.
+                // Update: moving this inside this check so that charts are only destroyed if the user enters a valid search range.
+                if (transactionChart) {
+                    transactionChart.destroy();
+                }
+
+                if (transactionBarChart) {
+                    transactionBarChart.destroy();
+                }
+
+                // If multiple searches were ran without reloading the page, the checkbox options would persist after each search.
+                // Now clearing the checkbox divs for the line chart when the search button is clicked.
+                $('#transaction-types-line-chart').empty();
+                $('#transaction-statuses-line-chart').empty();
+                $('#transaction-card-types-line-chart').empty();
+
+                // Also clearing the checkbox divs for the bar chart
+                $('#transaction-types-bar-chart').empty();
+                $('#transaction-statuses-bar-chart').empty();
+                $('#transaction-card-types-bar-chart').empty();
+
+                // The event handlers were sticking onto the elements when a second search was created, leading to multiple error messages displayed.
+                // So now we clone the buttons here when a new search is created.
+                let newLineChartButton = $("#line-chart-yaxis-submit").clone(true);
+                let newBarChartButton = $("#bar-chart-yaxis-submit").clone(true);
+
+                // Then replace the buttons with their clones. So now the clone will only have one event handler when the AJAX call adds them.
+                $("#line-chart-yaxis-submit").replaceWith(newLineChartButton);
+                $("#bar-chart-yaxis-submit").replaceWith(newBarChartButton);
+
+                // Run the function to create the graph with these dates as the search parameters.
+                generateGraph(startDate, endDate);
+            }
+            // The function returned false meaning that the dates were invalid, just return here and end things.
+            else {
+                return;
+            }
+        });
+    </script>
+</body>

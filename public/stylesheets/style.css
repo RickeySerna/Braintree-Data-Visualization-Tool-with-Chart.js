@@ -1,0 +1,516 @@
+body {
+  margin: 0;
+  font-family: Garamond, Papyrus, 'Times New Roman', Times, serif, Arial, Helvetica, sans-serif;
+}
+
+.txnSearchBackground {
+  border: 10px inset #E66C2C;
+  background-color: black;
+  text-align: center;
+}
+
+.tableLabel {
+  color: #E66C2C;
+}
+
+.topnav {
+  background-color: rgb(41, 0, 106);
+  overflow: visible;
+  padding-right: 0px;
+  padding-left: 0px;
+  border-radius: 15px;
+}
+
+#myTopnav .dropdown-menu {
+  padding: 0;
+  background-color: rgb(41, 0, 106);
+  border-radius: 15px;
+}
+
+.topnav .dropdown.show .btn {
+  background-color: #E66C2C;
+  color: black;
+}
+
+.topnav .btn:hover, .topnav .btn:focus, .topnav .btn:active {
+  box-shadow: 0 0 0 0.2rem #881ee47b !important; /* Change this to your preferred color */
+}
+
+.topnav .btn:active {
+  background-color: #e66d2c82 !important; /* Change this to your preferred color */
+}
+
+.topnav a, .topnav .btn {
+  float: left;
+  color: #f2f2f2;
+  background-color: rgb(41, 0, 106);
+  border-color: rgb(41, 0, 106);
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+  border-radius: 15px;
+}
+
+.topnav a:hover, .topnav .btn:hover {
+  background-color: #881EE4;
+  color: black;
+}
+
+#myTopnav .dropdown .dropdown-item.active {
+  background-color: #E66C2C;
+  color: black;
+}
+
+.topnav a.dropdown-item {
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+  border-radius: 15px;
+}
+
+.topnav a.side {
+  float: right;
+  color: #E66C2C;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: underline;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.topnav a.side:hover {
+  color: #E66C2C;
+  background-color: rgb(41, 0, 106);
+}
+
+.evenSpread {
+  table-layout: auto;
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+}
+
+.evenSpread th {
+  background-color: #E66C2C;
+  color: white;
+}
+
+.evenSpread tr {
+  background-color: rgb(243, 121, 77);
+  color: white;
+}
+
+.evenSpread tr:nth-child(even) {
+  background-color: #ff9258;
+}
+
+.evenSpread tr:hover {
+  background-color: #000000;
+}
+
+.footerStyle {
+  color: #E66C2C;
+  padding-bottom: 25px;
+}
+
+.submitButton {
+  text-align: center;
+}
+
+.applePayButtonStyle {
+  background-image: url("applepaybutton.png");
+  background-size: 100%;
+  height: 100px;
+  width: 476px;
+  margin: auto;
+}
+
+.googlePayButtonStyle {
+  margin: auto;
+}
+
+.pumpkinDanceStyle {
+  background-image: url("pumpkindance.gif");
+  background-size: 100%;
+  height: 240px;
+  width: 320px;
+  margin: auto;
+}
+
+.bodyStyle {
+  font-family: Garamond, Papyrus, 'Times New Roman', Times, serif, Arial, Helvetica, sans-serif;
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-top: 20px;
+  padding-bottom: 50px;
+  background-image: url("halloween.jpg");
+  /*Changing this to 100% to just fill the page, independent of whatever device is being used to open the page.*/
+  background-size: cover;
+  color: white;
+}
+
+.resultStyle {
+  background-image: url("halloween.jpg");
+  /*Same as above!*/
+  background-size: 100%;
+}
+
+.applePayStyle {
+  background-image: url("halloween.jpg");
+  background-size: 100%;
+}
+
+.googlePayStyle {
+  background-image: url("halloween.jpg");
+  background-size: 100%;
+}
+
+.txnHeaderPadding {
+  padding-bottom: 25px;
+}
+
+.h5Padding {
+  padding-top: 10px;
+}
+
+h5 {
+  color: #E66C2C;
+}
+
+.labelStyle {
+  color: #ff8e51;
+}
+
+.graphStyle {
+  background-color: #e66d2c45;
+}
+
+.GPlabelStyle {
+  color: #ff8e51;
+  display: block;
+  text-align: center;
+}
+
+.APlabelStyle {
+  color: #ff8e51;
+  display: block;
+  text-align: center;
+}
+
+.PPlabelStyle {
+  color: #ff8e51;
+  display: block;
+  text-align: center;
+}
+
+.form-control.inputClass {
+  background-color: #e66d2c45;
+  color: #ff8e51;
+}
+
+.form-control.inputClass:focus {
+  background-color: #e66d2c45;
+  color: #ff8e51;
+}
+
+.form-control.GPinputClass {
+  background-color: #e66d2c45;
+  color: #ff8e51;
+  margin : 0 auto;
+}
+
+.form-control.GPinputClass:focus {
+  background-color: #e66d2c45;
+  color: #ff8e51;
+}
+
+.form-control.APinputClass {
+  background-color: #e66d2c45;
+  color: #ff8e51;
+  margin : 0 auto;
+}
+
+.form-control.APinputClass:focus {
+  background-color: #e66d2c45;
+  color: #ff8e51;
+}
+
+.form-control.PPinputClass {
+  background-color: #e66d2c45;
+  color: #ff8e51;
+  margin : 0 auto;
+}
+
+.form-control.PPinputClass:focus {
+  background-color: #e66d2c45;
+  color: #ff8e51;
+}
+
+.paypal-container {
+  display: flex;
+  justify-content: center;
+}
+
+ .btn-outline-primary.buttonStyle {
+  background-color: #e66d2c;
+  color: black;
+  border-color: white;
+ }
+
+ .btn-primary:disabled {
+  background-color: #e66d2c;
+  border-color: white;
+  opacity: 1;
+}
+
+ .btn-outline-primary.buttonStyle:hover {
+  background-color: black;
+  color: #e66d2c;
+  border-color: #e66d2c;
+ }
+
+ h1 {
+  text-align: center;
+  padding-top: 75px;
+ }
+
+.lead.subtitle {
+  text-align: center;
+  font-size: 25px;
+}
+
+#graph-area {
+  position: relative;
+  z-index: 1;
+}
+
+#spinner-overlay {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+}
+
+#analyticsSpinnerDiv {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#theActualAnalyticsSpinner {
+  width: 10rem;
+  height: 10rem;
+  color: #ff8e51 !important;
+  margin-bottom: 20px;
+}
+
+.spinner-text {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  width: 100%;
+  color: #ff8e51;
+}
+
+#searchDiv {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+#date-inputs {
+  display: flex;
+  gap: 10px;
+}
+
+#start-date, #end-date, #graph-generator, #bar-chart-pop-out, #bar-chart-pop-out-close-button, #line-chart-pop-out, #line-chart-pop-out-close-button, #line-chart-yaxis-submit, #bar-chart-yaxis-submit {
+  background-color: #ff8e51;
+  border: none;
+  color: rgb(41, 0, 106);
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 5px rgb(67, 31, 16);
+  transition: background-color 0.3s ease;
+  z-index: 1000;
+}
+
+#start-date:hover, #end-date:hover, #graph-generator:hover, #bar-chart-pop-out:hover, #bar-chart-pop-out-close-button:hover, #line-chart-pop-out:hover, #line-chart-pop-out-close-button:hover, #line-chart-yaxis-submit:hover, #bar-chart-yaxis-submit:hover {
+  background-color: #ff6a00;
+}
+
+#graph-generator {
+  cursor: pointer;
+  margin-left: 20px;
+}
+
+#graph-generator:active, #bar-chart-pop-out:active, #bar-chart-pop-out-close-button:active, #line-chart-pop-out:active, #line-chart-pop-out-close-button:active, #line-chart-yaxis-submit:active, #bar-chart-yaxis-submit:active {
+  background-color: rgb(41, 0, 106);
+  color: rgb(255, 255, 255);
+}
+
+#graph-generator:focus, #start-date:focus, #end-date:focus, #bar-chart-pop-out:focus, #bar-chart-pop-out-close-button:focus, #line-chart-pop-out:focus, #line-chart-pop-out-close-button:focus, #line-chart-yaxis-submit:focus, #bar-chart-yaxis-submit:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px #ff6a00;
+}
+
+/* Thought that the Analytics page was looking a little bare, so I decided to make an extremely gaudy jumbotron header. I love it.*/
+#analytics-jumbotron {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40vh;
+  background: linear-gradient(-45deg, #000000, #000000, #000000, #881EE4, #29006a, #881EE4, #ff6a00, #e66d2c, #ff6a00, #881EE4, #29006a, #881EE4, #ff6a00, #e66d2c, #ff6a00, #000000, #000000, #000000);
+  background-size: 200% 100%;
+  animation: gradient 10s linear infinite, pulsate 2s ease-out infinite;
+  border: 5px solid #ff8e51;
+  border-radius: 25px;
+  box-shadow: 0 0 25px #ff8e51, 0 0 50px #ff8e51, 0 0 75px #ff8e51;
+  padding: 50px;
+  margin-top: 30px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes pulsate {
+  0% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px #ff8e51, 0 0 30px #ff8e51, 0 0 40px #ff8e51;
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+#analyticsHeader {
+  color: #ff8e51;
+  text-shadow: 2px 2px 4px #000000;
+  font-size: 3em;
+  padding: 20px 0;
+  animation: flash 1s infinite, glow 1s infinite, flicker 1.5s infinite;
+}
+
+@keyframes flash {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0;
+  }
+}
+
+@keyframes glow {
+  0% {
+    text-shadow: 0 0 5px #ff8e51, 0 0 10px #ff8e51, 0 0 15px #ff8e51, 0 0 20px #ff8e51;
+  }
+  100% {
+    text-shadow: 0 0 10px #ff8e51, 0 0 20px #ff8e51, 0 0 30px #ff8e51, 0 0 40px #ff8e51;
+  }
+}
+
+@keyframes flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% {
+    text-shadow:
+      -2px -2px 1px #ff8e51,
+      2px -2px 1px #ff8e51,
+      -2px 2px 1px #ff8e51,
+      2px 2px 1px #ff8e51;
+  }
+  20%, 24%, 55% { 
+    text-shadow: none;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translatey(0px);
+  }
+  50% {
+    transform: translatey(-20px);
+  }
+  100% {
+    transform: translatey(0px);
+  }
+}
+
+.checkbox-cols {
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+  margin-bottom: 20px;
+}
+
+.checkbox-cols p {
+  color: #ff8e51;
+  margin-bottom: 0;
+  text-decoration: underline;
+}
+
+#line-chart-title, #bar-chart-title {
+  color: #881EE4;
+  font-weight: bold;
+  text-shadow: 0 0 8px #6b07a1dc;
+  font-size: 2em;
+  text-decoration: underline;
+}
+
+#graph-area {
+  border: 5px solid #ff8e51c8;
+  background-color: #29006a79;
+  overflow: hidden;
+}
+
+#analytics-intro {
+  color: #ff8e51;
+  font-size: 1.5em;
+  text-align: center;
+}
+
+.halloween-pumpkin-style {
+  background-image: url("halloween-pumpkin.gif");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 150px;
+  width: 450px;
+  float: left;
+  margin-right: 10px;
+}
+
+#line-chart-yvalue-input, #bar-chart-yvalue-input {
+  background-color: #ff8e51;
+  color: rgb(41, 0, 106);
+  border-radius: 5px;
+  border: 3px solid #ff6a00;
+  margin-bottom: 7.5px;
+}
+
+#line-chart-yvalue-input:focus, #bar-chart-yvalue-input:focus {
+  outline: none;
+}
