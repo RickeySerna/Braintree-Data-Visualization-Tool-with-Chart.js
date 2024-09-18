@@ -44,14 +44,6 @@ app.use('*', function (req, res, next) {
   next();
 });
 
-app.get('/', (req, res) => {
-  gateway.clientToken.generate({}, (err, response) => {
-    res.render('index', {
-      clientToken: response.clientToken,
-      title: 'BOO!'
-	  });
-  });
-});
 
 app.post('/transaction-with-token', (req, res, next) => {
   const PaymentMethodNonce = req.body.PaymentMethodNonce;
@@ -1288,9 +1280,9 @@ app.post('/testing-result', (req, res, next) => {
 
 });
 
-app.get('/Analytics', (req, res) => {
+app.get('/', (req, res) => {
   // Passing the merchant ID here from the .env file as well so that it doesn't have to be hardcoded in the onclick handler.
-  res.render('Analytics', {
+  res.render('index', {
     merchantId: process.env.MERCHANT_ID,
     title: "Spooktistics"
   });
