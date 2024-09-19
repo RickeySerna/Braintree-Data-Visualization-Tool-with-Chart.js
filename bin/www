@@ -7,27 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('braintreetutorial:server');
 var http = require('http');
-var httpsApp = require('../app');
-var socketapi = require('../socketapi');
-var io = socketapi.io;
 var chalk = require('chalk');
-
-// Creating variables for the HTTPS connection.
-const https = require('https');
-const fs = require('fs');
-// Setting paths for HTTPS key and certificate.
-const options = {
-  key: fs.readFileSync('bin/localhost-key.pem'),
-  cert: fs.readFileSync('bin/localhost.pem'),
-};
-
-// Setting the HTTPS server with the above key + cert and the same app that's running on HTTP.
-var httpsServer = https.createServer(options, app);
-httpsServer.listen(8000, function() {
-  console.log(chalk.green('Listening on port 8000 on HTTPS'));
-});
-// Attaching the socket.io component to the HTTPS server as well so that the socket.io stuff will work on that connection as well.
-io.attach(httpsServer);
 
 /**
  * Get port from environment and store in Express.
@@ -41,7 +21,6 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
-io.attach(server);
 
 /**
  * Listen on provided port, on all network interfaces.
