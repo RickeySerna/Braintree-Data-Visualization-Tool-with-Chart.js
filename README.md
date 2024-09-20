@@ -1,8 +1,8 @@
-# Braintree-Data-Visualization-Tool-with-Chart.js
+# Braintree Data Visualization Tool with Chart.js
 
 Hello!
 
-This is a data visualization tool for Braintree gateways using Chart.js. It is a website which generates two charts; a Transaction Timeline and Transaction Volume by Day. They are in the form of a line chart and a bar chart respectively. The chart site is empty upon loading the site, then a start and end date can be selected in the date fields. Once chosen, you can hit the Submit button and both charts will be generated.
+This is a data visualization tool for Braintree gateways using Chart.js. It is a website which generates two charts; Transaction Timeline and Transaction Volume by Day. They are in the form of a line chart and a bar chart respectively. Enter a start and end date in the designated date fields, then hit the Submit button and both charts will be generated.
 
 ## Transaction Timeline
 
@@ -26,7 +26,7 @@ This chart plots each day within the search range and creates three bars in each
 * Hovering over any bar will bring up a tooltip providing information on that bar including the date, the total amount on those transactions, and the transaction IDs making up the bar.
 * Each bar can be clicked and it will bring the user to a transaction search within the Braintree gateway bringing up those specific transactions.
 
-Both charts have a number of common features:
+#### Both charts have a number of common features:
 
 * Filtering options are generated dynamically based on what's returned in the search. I.e., American Express will only appear as a filtering option under Card Types if the search contained Amex transactions.
 * Filters can be used together so that only specific transactions are charted. For example, if a user only wants to see how their Visa Apple Pay transactions have been processing, they could filter out everything but Apple Pay under Payment Methods and everything but Visa under Card Types.
@@ -69,4 +69,4 @@ While the server is running, head to http://localhost:3000/ on any browser.
 
 Thank you and enjoy!
 
-- Rickey
+-- Rickey
