@@ -1,25 +1,20 @@
 <head>
 </head>
 
-<body>
+<body class="bodyStyle">
     <div id="analytics-jumbotron" class="jumbotron">
-        <h1 id="analyticsHeader">Welcome to Transaction Analytics!</h1>
+        <h1 id="analyticsHeader">Braintree Transaction Data Visualization</h1>
     </div>
 
     <!-- Quick intro describing the page. -->
     <div id="analytics-intro">
         <br>
         <br>
-        <br>
-        <!-- From John Carpenter himself. -->
-        <div class = "halloween-pumpkin-style"></div>
-        <div class = "halloween-pumpkin-style" style="float:right;"></div>
         <p>This page will generate two graphs based on transactions from the Braintree gateway</p>
         <p>A line graph plotting transactions in sequence and a bar graph displaying transction volume by day</p>
         <br style="clear:both;">
         <br>
-        <br>
-        <p>Enter a search range below and hit enter or click the button to generate the graphs!</p>
+        <p>Enter a search range below and hit enter or click the button to generate the graphs</p>
     </div>
 
     <!-- Creating two input dates for the search parameters and a button to generate the graph. -->
@@ -33,7 +28,7 @@
 
     <div id="graph-area">
         <!-- Div holding the line chart and its checkbox options. -->
-        <div class="row" style="border-bottom: 2.5px solid #ff8e51c8;">
+        <div class="row" style="border-bottom: 2.5px solid white;">
             <div class="col-10">
                 <div class="graphStyle">
                     <div>
@@ -67,7 +62,7 @@
         </div>
 
         <!-- Div holding the bar chart and its checkbox options. -->
-        <div class="row" style="border-top: 2.5px solid #ff8e51c8;">
+        <div class="row" style="border-top: 2.5px solid white;">
             <div class="col-10">
                 <div class="graphStyle" style="position: relative;">
                     <div>
@@ -581,7 +576,7 @@
                             var x = chart.chartArea.right - boxWidth; // Calculate x based on the boxWidth
                             var y = chart.chartArea.top + topPadding; // Start at the top of the chart
 
-                            ctx.fillStyle = 'rgba(255, 207, 135, 0.1)'; // Set the color of the box
+                            ctx.fillStyle = '#919191'; // Set the color of the box
                             ctx.fillRect(x - 5, y - 5, boxWidth, boxHeight); // Draw the box
                             ctx.fillStyle = 'black'; // Set the color of the text
 
@@ -615,20 +610,20 @@
                     // Update; added styles here. Since these are generated programmatically, the styles in the stylesheet don't seem to apply. Doing it here instead.
                     // Add checkboxes for each transaction type
                     transactionTypes.forEach(function(type) {
-                        $('#transaction-types-line-chart').append('<input type="checkbox" checked value="' + type + '"><span></span><span style="color: #881EE4;">' + type + '</span><br>');
-                        $('#transaction-types-bar-chart').append('<input type="checkbox" checked value="' + type + '"><span></span><span style="color: #881EE4;">' + type + '</span><br>');
+                        $('#transaction-types-line-chart').append('<input type="checkbox" checked value="' + type + '"><span></span><span style="color: white;">' + type + '</span><br>');
+                        $('#transaction-types-bar-chart').append('<input type="checkbox" checked value="' + type + '"><span></span><span style="color: white;">' + type + '</span><br>');
                     });
 
                     // Add checkboxes for each transaction status
                     transactionStatuses.forEach(function(status) {
-                        $('#transaction-statuses-line-chart').append('<input type="checkbox" checked value="' + status + '"><span></span><span style="color: #a344f7;">' + status + '</span><br>');
-                        $('#transaction-statuses-bar-chart').append('<input type="checkbox" checked value="' + status + '"><span></span><span style="color: #a344f7;">' + status + '</span><br>');
+                        $('#transaction-statuses-line-chart').append('<input type="checkbox" checked value="' + status + '"><span></span><span style="color: white;">' + status + '</span><br>');
+                        $('#transaction-statuses-bar-chart').append('<input type="checkbox" checked value="' + status + '"><span></span><span style="color: white;">' + status + '</span><br>');
                     });
 
                     // Add checkboxes for each transaction card type
                     transactionCardTypes.forEach(function(type) {
-                        $('#transaction-card-types-line-chart').append('<input type="checkbox" checked value="' + type + '"><span></span><span style="color: #a344f7;">' + type + '</span><br>');
-                        $('#transaction-card-types-bar-chart').append('<input type="checkbox" checked value="' + type + '"><span></span><span style="color: #a344f7;">' + type + '</span><br>');
+                        $('#transaction-card-types-line-chart').append('<input type="checkbox" checked value="' + type + '"><span></span><span style="color: white;">' + type + '</span><br>');
+                        $('#transaction-card-types-bar-chart').append('<input type="checkbox" checked value="' + type + '"><span></span><span style="color: white;">' + type + '</span><br>');
                     });
 
                     // Function to draw the chart
@@ -716,7 +711,7 @@
                                                 return '#FF8E51';
                                         }
                                     },
-                                    borderColor: '#FF8E51',
+                                    borderColor: 'black',
                                     borderWidth: 1,
                                     spanGaps: true,
                                 }]
@@ -845,7 +840,7 @@
                             overlay.style.left = 0;
                             overlay.style.width = '100%';
                             overlay.style.height = '100%';
-                            overlay.style.backgroundColor = "#d9adff";
+                            overlay.style.backgroundColor = "white";
                             // This zIndex makes it sit on top of everything on the page.
                             overlay.style.zIndex = 1000;
 
@@ -1367,7 +1362,7 @@
                             overlay.style.left = 0;
                             overlay.style.width = '100%';
                             overlay.style.height = '100%';
-                            overlay.style.backgroundColor = "rgb(224, 134, 85)";
+                            overlay.style.backgroundColor = "white";
                             // This zIndex makes it sit on top of everything on the page.
                             overlay.style.zIndex = 1000;
 

@@ -120,36 +120,13 @@ body {
   text-align: center;
 }
 
-.applePayButtonStyle {
-  background-image: url("applepaybutton.png");
-  background-size: 100%;
-  height: 100px;
-  width: 476px;
-  margin: auto;
-}
-
-.googlePayButtonStyle {
-  margin: auto;
-}
-
-.pumpkinDanceStyle {
-  background-image: url("pumpkindance.gif");
-  background-size: 100%;
-  height: 240px;
-  width: 320px;
-  margin: auto;
-}
-
 .bodyStyle {
   font-family: Garamond, Papyrus, 'Times New Roman', Times, serif, Arial, Helvetica, sans-serif;
   padding-left: 30px;
   padding-right: 30px;
   padding-top: 20px;
   padding-bottom: 50px;
-  background-image: url("halloween.jpg");
-  /*Changing this to 100% to just fill the page, independent of whatever device is being used to open the page.*/
-  background-size: cover;
-  color: white;
+  background-color: black;
 }
 
 .resultStyle {
@@ -185,7 +162,7 @@ h5 {
 }
 
 .graphStyle {
-  background-color: #e66d2c45;
+  background-color: #f6f6f699;
 }
 
 .GPlabelStyle {
@@ -308,7 +285,7 @@ h5 {
 #theActualAnalyticsSpinner {
   width: 10rem;
   height: 10rem;
-  color: #ff8e51 !important;
+  color: white !important;
   margin-bottom: 20px;
 }
 
@@ -319,7 +296,7 @@ h5 {
   transform: translateX(-50%);
   text-align: center;
   width: 100%;
-  color: #ff8e51;
+  color: white;
 }
 
 #searchDiv {
@@ -336,9 +313,9 @@ h5 {
 }
 
 #start-date, #end-date, #graph-generator, #bar-chart-pop-out, #bar-chart-pop-out-close-button, #line-chart-pop-out, #line-chart-pop-out-close-button, #line-chart-yaxis-submit, #bar-chart-yaxis-submit {
-  background-color: #ff8e51;
+  background-color: white;
   border: none;
-  color: rgb(41, 0, 106);
+  color: black;
   font-size: 16px;
   padding: 10px;
   border-radius: 5px;
@@ -348,7 +325,7 @@ h5 {
 }
 
 #start-date:hover, #end-date:hover, #graph-generator:hover, #bar-chart-pop-out:hover, #bar-chart-pop-out-close-button:hover, #line-chart-pop-out:hover, #line-chart-pop-out-close-button:hover, #line-chart-yaxis-submit:hover, #bar-chart-yaxis-submit:hover {
-  background-color: #ff6a00;
+  background-color: grey;
 }
 
 #graph-generator {
@@ -357,13 +334,13 @@ h5 {
 }
 
 #graph-generator:active, #bar-chart-pop-out:active, #bar-chart-pop-out-close-button:active, #line-chart-pop-out:active, #line-chart-pop-out-close-button:active, #line-chart-yaxis-submit:active, #bar-chart-yaxis-submit:active {
-  background-color: rgb(41, 0, 106);
+  background-color: rgb(24, 24, 24);
   color: rgb(255, 255, 255);
 }
 
 #graph-generator:focus, #start-date:focus, #end-date:focus, #bar-chart-pop-out:focus, #bar-chart-pop-out-close-button:focus, #line-chart-pop-out:focus, #line-chart-pop-out-close-button:focus, #line-chart-yaxis-submit:focus, #bar-chart-yaxis-submit:focus {
   outline: none;
-  box-shadow: 0 0 0 3px #ff6a00;
+  box-shadow: 0 0 0 3px rgb(205, 205, 205);
 }
 
 /* Thought that the Analytics page was looking a little bare, so I decided to make an extremely gaudy jumbotron header. I love it.*/
@@ -372,12 +349,12 @@ h5 {
   justify-content: center;
   align-items: center;
   height: 40vh;
-  background: linear-gradient(-45deg, #000000, #000000, #000000, #881EE4, #29006a, #881EE4, #ff6a00, #e66d2c, #ff6a00, #881EE4, #29006a, #881EE4, #ff6a00, #e66d2c, #ff6a00, #000000, #000000, #000000);
+  background: linear-gradient(black, white, black);
   background-size: 200% 100%;
-  animation: gradient 10s linear infinite, pulsate 2s ease-out infinite;
-  border: 5px solid #ff8e51;
+  /*animation: gradient 10s linear infinite, pulsate 2s ease-out infinite;*/
+  border: 5px solid white;
   border-radius: 25px;
-  box-shadow: 0 0 25px #ff8e51, 0 0 50px #ff8e51, 0 0 75px #ff8e51;
+  box-shadow: 0 0 25px white, 0 0 50px white, 0 0 75px white;
   padding: 50px;
   margin-top: 30px;
   text-align: center;
@@ -410,11 +387,10 @@ h5 {
 }
 
 #analyticsHeader {
-  color: #ff8e51;
+  color: black;
   text-shadow: 2px 2px 4px #000000;
   font-size: 3em;
   padding: 20px 0;
-  animation: flash 1s infinite, glow 1s infinite, flicker 1.5s infinite;
 }
 
 @keyframes flash {
@@ -467,50 +443,39 @@ h5 {
 }
 
 .checkbox-cols p {
-  color: #ff8e51;
+  color: white;
   margin-bottom: 0;
   text-decoration: underline;
 }
 
 #line-chart-title, #bar-chart-title {
-  color: #881EE4;
+  color: black;
   font-weight: bold;
-  text-shadow: 0 0 8px #6b07a1dc;
   font-size: 2em;
   text-decoration: underline;
 }
 
 #graph-area {
-  border: 5px solid #ff8e51c8;
-  background-color: #29006a79;
+  border: 5px solid white;
+  background-color: #ffffff49;
   overflow: hidden;
 }
 
 #analytics-intro {
-  color: #ff8e51;
+  color: white;
   font-size: 1.5em;
   text-align: center;
 }
 
-.halloween-pumpkin-style {
-  background-image: url("halloween-pumpkin.gif");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
-  height: 150px;
-  width: 450px;
-  float: left;
-  margin-right: 10px;
-}
-
 #line-chart-yvalue-input, #bar-chart-yvalue-input {
-  background-color: #ff8e51;
-  color: rgb(41, 0, 106);
+  background-color: white;
+  color: black;
   border-radius: 5px;
-  border: 3px solid #ff6a00;
+  border: none;
   margin-bottom: 7.5px;
 }
 
 #line-chart-yvalue-input:focus, #bar-chart-yvalue-input:focus {
   outline: none;
+  box-shadow: 0 0 0 3px rgb(205, 205, 205);
 }

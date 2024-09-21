@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(favicon(path.join(__dirname, "public", "stylesheets", "8bitpumpkin.png")));
+//app.use(favicon(path.join(__dirname, "public", "stylesheets", "8bitpumpkin.png")));
 
 // Creating this to log in the server when a user accesses a page.
 app.use('*', function (req, res, next) {
@@ -38,7 +38,7 @@ app.get('/', (req, res) => {
   // Passing the merchant ID here from the .env file as well so that it doesn't have to be hardcoded in the onclick handler.
   res.render('index', {
     merchantId: process.env.MERCHANT_ID,
-    title: "Spooktistics"
+    title: "Braintree Transaction Data Visualization"
   });
 });
 
