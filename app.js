@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-//app.use(favicon(path.join(__dirname, "public", "stylesheets", "8bitpumpkin.png")));
+app.use(favicon(path.join(__dirname, "public", "stylesheets", "chart.png")));
 
 // Creating this to log in the server when a user accesses a page.
 app.use('*', function (req, res, next) {

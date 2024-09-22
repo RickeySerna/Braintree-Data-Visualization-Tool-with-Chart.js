@@ -1,5 +1,5 @@
 {
-  "name": "rs-braintree-integration",
+  "name": "Braintree-Data-Visualization",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -19,7 +19,6 @@
     "moment-timezone": "^0.5.44",
     "morgan": "~1.9.1",
     "number": "0.0.1",
-    "serve-favicon": "^2.5.0",
-    "socket.io": "^4.7.2"
+    "serve-favicon": "^2.5.0"
   }
 }

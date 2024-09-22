@@ -3,125 +3,8 @@ body {
   font-family: Garamond, Papyrus, 'Times New Roman', Times, serif, Arial, Helvetica, sans-serif;
 }
 
-.txnSearchBackground {
-  border: 10px inset #E66C2C;
-  background-color: black;
-  text-align: center;
-}
-
-.tableLabel {
-  color: #E66C2C;
-}
-
-.topnav {
-  background-color: rgb(41, 0, 106);
-  overflow: visible;
-  padding-right: 0px;
-  padding-left: 0px;
-  border-radius: 15px;
-}
-
-#myTopnav .dropdown-menu {
-  padding: 0;
-  background-color: rgb(41, 0, 106);
-  border-radius: 15px;
-}
-
-.topnav .dropdown.show .btn {
-  background-color: #E66C2C;
-  color: black;
-}
-
-.topnav .btn:hover, .topnav .btn:focus, .topnav .btn:active {
-  box-shadow: 0 0 0 0.2rem #881ee47b !important; /* Change this to your preferred color */
-}
-
-.topnav .btn:active {
-  background-color: #e66d2c82 !important; /* Change this to your preferred color */
-}
-
-.topnav a, .topnav .btn {
-  float: left;
-  color: #f2f2f2;
-  background-color: rgb(41, 0, 106);
-  border-color: rgb(41, 0, 106);
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-  font-size: 17px;
-  border-radius: 15px;
-}
-
-.topnav a:hover, .topnav .btn:hover {
-  background-color: #881EE4;
-  color: black;
-}
-
-#myTopnav .dropdown .dropdown-item.active {
-  background-color: #E66C2C;
-  color: black;
-}
-
-.topnav a.dropdown-item {
-  color: #f2f2f2;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-  font-size: 17px;
-  border-radius: 15px;
-}
-
-.topnav a.side {
-  float: right;
-  color: #E66C2C;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: underline;
-  font-size: 17px;
-  font-weight: bold;
-}
-
-.topnav a.side:hover {
-  color: #E66C2C;
-  background-color: rgb(41, 0, 106);
-}
-
-.evenSpread {
-  table-layout: auto;
-  width: 100%;
-  text-align: center;
-  padding: 10px;
-}
-
-.evenSpread th {
-  background-color: #E66C2C;
-  color: white;
-}
-
-.evenSpread tr {
-  background-color: rgb(243, 121, 77);
-  color: white;
-}
-
-.evenSpread tr:nth-child(even) {
-  background-color: #ff9258;
-}
-
-.evenSpread tr:hover {
-  background-color: #000000;
-}
-
-.footerStyle {
-  color: #E66C2C;
-  padding-bottom: 25px;
-}
-
-.submitButton {
-  text-align: center;
-}
-
 .bodyStyle {
-  font-family: Garamond, Papyrus, 'Times New Roman', Times, serif, Arial, Helvetica, sans-serif;
+  font-family: Arial, Papyrus, 'Times New Roman', Times, serif, Helvetica, sans-serif;
   padding-left: 30px;
   padding-right: 30px;
   padding-top: 20px;
@@ -129,135 +12,14 @@ body {
   background-color: black;
 }
 
-.resultStyle {
-  background-image: url("halloween.jpg");
-  /*Same as above!*/
-  background-size: 100%;
-}
-
-.applePayStyle {
-  background-image: url("halloween.jpg");
-  background-size: 100%;
-}
-
-.googlePayStyle {
-  background-image: url("halloween.jpg");
-  background-size: 100%;
-}
-
-.txnHeaderPadding {
-  padding-bottom: 25px;
-}
-
-.h5Padding {
-  padding-top: 10px;
-}
-
-h5 {
-  color: #E66C2C;
-}
-
-.labelStyle {
-  color: #ff8e51;
-}
-
 .graphStyle {
   background-color: #f6f6f699;
 }
-
-.GPlabelStyle {
-  color: #ff8e51;
-  display: block;
-  text-align: center;
-}
-
-.APlabelStyle {
-  color: #ff8e51;
-  display: block;
-  text-align: center;
-}
-
-.PPlabelStyle {
-  color: #ff8e51;
-  display: block;
-  text-align: center;
-}
-
-.form-control.inputClass {
-  background-color: #e66d2c45;
-  color: #ff8e51;
-}
-
-.form-control.inputClass:focus {
-  background-color: #e66d2c45;
-  color: #ff8e51;
-}
-
-.form-control.GPinputClass {
-  background-color: #e66d2c45;
-  color: #ff8e51;
-  margin : 0 auto;
-}
-
-.form-control.GPinputClass:focus {
-  background-color: #e66d2c45;
-  color: #ff8e51;
-}
-
-.form-control.APinputClass {
-  background-color: #e66d2c45;
-  color: #ff8e51;
-  margin : 0 auto;
-}
-
-.form-control.APinputClass:focus {
-  background-color: #e66d2c45;
-  color: #ff8e51;
-}
-
-.form-control.PPinputClass {
-  background-color: #e66d2c45;
-  color: #ff8e51;
-  margin : 0 auto;
-}
-
-.form-control.PPinputClass:focus {
-  background-color: #e66d2c45;
-  color: #ff8e51;
-}
-
-.paypal-container {
-  display: flex;
-  justify-content: center;
-}
-
- .btn-outline-primary.buttonStyle {
-  background-color: #e66d2c;
-  color: black;
-  border-color: white;
- }
-
- .btn-primary:disabled {
-  background-color: #e66d2c;
-  border-color: white;
-  opacity: 1;
-}
-
- .btn-outline-primary.buttonStyle:hover {
-  background-color: black;
-  color: #e66d2c;
-  border-color: #e66d2c;
- }
 
  h1 {
   text-align: center;
   padding-top: 75px;
  }
-
-.lead.subtitle {
-  text-align: center;
-  font-size: 25px;
-}
 
 #graph-area {
   position: relative;
@@ -343,7 +105,6 @@ h5 {
   box-shadow: 0 0 0 3px rgb(205, 205, 205);
 }
 
-/* Thought that the Analytics page was looking a little bare, so I decided to make an extremely gaudy jumbotron header. I love it.*/
 #analytics-jumbotron {
   display: flex;
   justify-content: center;
@@ -351,39 +112,13 @@ h5 {
   height: 40vh;
   background: linear-gradient(black, white, black);
   background-size: 200% 100%;
-  /*animation: gradient 10s linear infinite, pulsate 2s ease-out infinite;*/
   border: 5px solid white;
   border-radius: 25px;
-  box-shadow: 0 0 25px white, 0 0 50px white, 0 0 75px white;
   padding: 50px;
   margin-top: 30px;
   text-align: center;
   position: relative;
   overflow: hidden;
-}
-
-@keyframes gradient {
-  0% {
-    background-position: 100% 0;
-  }
-  100% {
-    background-position: -100% 0;
-  }
-}
-
-@keyframes pulsate {
-  0% {
-    transform: scale(1);
-    box-shadow: none;
-  }
-  50% {
-    transform: scale(1.02);
-    box-shadow: 0 0 20px #ff8e51, 0 0 30px #ff8e51, 0 0 40px #ff8e51;
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: none;
-  }
 }
 
 #analyticsHeader {
@@ -393,48 +128,6 @@ h5 {
   padding: 20px 0;
 }
 
-@keyframes flash {
-  0%, 50%, 100% {
-    opacity: 1;
-  }
-  25%, 75% {
-    opacity: 0;
-  }
-}
-
-@keyframes glow {
-  0% {
-    text-shadow: 0 0 5px #ff8e51, 0 0 10px #ff8e51, 0 0 15px #ff8e51, 0 0 20px #ff8e51;
-  }
-  100% {
-    text-shadow: 0 0 10px #ff8e51, 0 0 20px #ff8e51, 0 0 30px #ff8e51, 0 0 40px #ff8e51;
-  }
-}
-
-@keyframes flicker {
-  0%, 18%, 22%, 25%, 53%, 57%, 100% {
-    text-shadow:
-      -2px -2px 1px #ff8e51,
-      2px -2px 1px #ff8e51,
-      -2px 2px 1px #ff8e51,
-      2px 2px 1px #ff8e51;
-  }
-  20%, 24%, 55% { 
-    text-shadow: none;
-  }
-}
-
-@keyframes float {
-  0% {
-    transform: translatey(0px);
-  }
-  50% {
-    transform: translatey(-20px);
-  }
-  100% {
-    transform: translatey(0px);
-  }
-}
 
 .checkbox-cols {
   padding-left: 20px !important;
