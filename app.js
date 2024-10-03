@@ -43,12 +43,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/transactionDataForAnalytics', (req, res) => {
-  let transactionAmounts = [];
-  let transactionIDs = [];
-  let transactionStatuses = [];
-  let transactionsCreatedAt = [];
-  let transactionTypes = [];
-  let transactionCardTypes = [];
+  let transactions = [];
 
   // Function to move the dates from UTC to CST.
   function formatDates(dates) {
@@ -137,24 +132,28 @@ app.get('/transactionDataForAnalytics', (req, res) => {
   stream.on('data', (transaction) => {
     // This check ensures that only sale transactions are pulled from the search. No refunds.
     if (transaction.type == "sale") {
-      transactionAmounts.push(transaction.amount);
-      transactionIDs.push(transaction.id);
-      transactionStatuses.push(transaction.status);
-      transactionsCreatedAt.push(transaction.createdAt);
-      transactionTypes.push(transaction.paymentInstrumentType);
 
       // Conditions to grab the card type from each type of payment method.
       // This way only the one correct card type attribute is pushed into the array.
       // Keeps the array indexes consistent with the same transaction at each index of each array.
-      if (transaction.paymentInstrumentType == "credit_card") {
-        transactionCardTypes.push(transaction.creditCard.cardType);
-      }
-      else if (transaction.paymentInstrumentType == "apple_pay_card") {
-        transactionCardTypes.push(transaction.applePayCard.cardType);
-      }
-      else if (transaction.paymentInstrumentType == "android_pay_card") {
-        transactionCardTypes.push(transaction.androidPayCard.sourceCardType);
-      }
+      const cardTypeMap = {
+        "credit_card": transaction.creditCard.cardType,
+        "apple_pay_card": transaction.applePayCard.cardType,
+        "android_pay_card": transaction.androidPayCard.sourceCardType
+      };
+
+      const cardType = cardTypeMap[transaction.paymentInstrumentType] || "undefined";
+
+      transactions.push({
+        amount: transaction.amount,
+        id: transaction.id,
+        status: transaction.status,
+        createdAt: transaction.createdAt,
+        paymentInstrumentType: transaction.paymentInstrumentType,
+        cardType: cardType
+      });
+
+
       // Threw these in as well for the less common payment methods, however they appear to be causing errors.
       // The card type seems to always be undefined. I think this is an issue with the API.
       // Nothing I can do about that. ¯\_(ツ)_/¯
@@ -173,26 +172,27 @@ app.get('/transactionDataForAnalytics', (req, res) => {
       }*/
       // In case a payment method didn't match any of the defined payment methods (like the ones above), we just add "undefined" to the array.
       // This is to keep the indexes accurate.
-      else {
-        transactionCardTypes.push("undefined");
-      }
     };
   });
   stream.on('end', () => {
+
+    console.log("Transactions array: " + transactions);
     // Using the functions to create new arrays filled with the formatted data.
-    let correctedDates = formatDates(transactionsCreatedAt);
+    /*let correctedDates = formatDates(transactionsCreatedAt);
     let correctedTypes = formatTypes(transactionTypes);
     let correctedStatuses = formatStatuses(transactionStatuses);
-    let correctedCardTypes = formatCardTypes(transactionCardTypes);
+    let correctedCardTypes = formatCardTypes(transactionCardTypes);*/
 
     console.log("All done! Sending the data over.");
     res.send({
+      transactions: transactions
+      /*
       amounts: transactionAmounts,
       ids: transactionIDs,
       statuses: correctedStatuses,
       createdAt: correctedDates,
       types: correctedTypes,
-      cardTypes: correctedCardTypes
+      cardTypes: correctedCardTypes*/
     });
   });
 });

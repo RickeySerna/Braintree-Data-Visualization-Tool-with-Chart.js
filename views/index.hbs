@@ -126,13 +126,14 @@
                 type: 'GET',
                 dataType: 'json',
                 success: function(response) {
+                    console.log("Transactions array: ", response.transactions);
                     // The arrays are in reverse order chronologically, so we're reversing them now.
-                    var createdAt = response.createdAt.reverse();
+                    /*var createdAt = response.createdAt.reverse();
                     var amounts = response.amounts.reverse();
                     var ids = response.ids.reverse();
                     var statuses = response.statuses.reverse();
                     var types = response.types.reverse();
-                    var cardTypes = response.cardTypes.reverse();
+                    var cardTypes = response.cardTypes.reverse();*/
 
                     console.log("Date array: ", createdAt);
                     console.log("Amount array: ", amounts);
