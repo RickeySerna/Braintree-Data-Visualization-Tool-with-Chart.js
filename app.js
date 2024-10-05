@@ -1,4 +1,3 @@
-const gateway = require('./gatewaycreate.js');
 const express = require('express');
 const date = require('date-utils');
 const path = require('path')
@@ -10,6 +9,7 @@ var logger = require('morgan');
 var chalk = require('chalk');
 var moment = require('moment-timezone');
 const favicon = require('serve-favicon');
+const { fetchDataForAnalytics } = require("./controllers/data-fetching");
 
 var app = express();
 
@@ -42,8 +42,12 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/transactionDataForAnalytics', (req, res) => {
-  let transactions = [];
+app.get('/transactionDataForAnalytics', async (req, res) => {
+  let startDate = req.query.startDate;
+  let endDate = req.query.endDate;
+  
+  let transactions = await fetchDataForAnalytics(startDate, endDate);
+  console.log("Transactions array: ", transactions);
 
   // Function to move the dates from UTC to CST.
   function formatDates(dates) {
@@ -100,11 +104,11 @@ app.get('/transactionDataForAnalytics', (req, res) => {
     };
     return cardTypes.map(cardType => cardTypeMap[cardType] || cardType);
   }
-
+/*
   // Noticed that the search results are pulled in UTC.
   // This will cut off and include some results outside of the timezone of the gateway (CST in my case) at the beginning and ends of the search ranges.
-  let startDate = req.query.startDate;
-  let endDate = req.query.endDate;
+  //let startDate = req.query.startDate;
+  //let endDate = req.query.endDate;
   // To fix that, we're gonna define the timezone offset here.
   let timezoneOffset = 6;
   // Now we define two new Date objects from the original date objects we received from the client.
@@ -172,7 +176,7 @@ app.get('/transactionDataForAnalytics', (req, res) => {
       }*/
       // In case a payment method didn't match any of the defined payment methods (like the ones above), we just add "undefined" to the array.
       // This is to keep the indexes accurate.
-    };
+/*    };
   });
   stream.on('end', () => {
 
@@ -182,7 +186,7 @@ app.get('/transactionDataForAnalytics', (req, res) => {
     let correctedTypes = formatTypes(transactionTypes);
     let correctedStatuses = formatStatuses(transactionStatuses);
     let correctedCardTypes = formatCardTypes(transactionCardTypes);*/
-
+/*
     console.log("All done! Sending the data over.");
     res.send({
       transactions: transactions
@@ -192,9 +196,9 @@ app.get('/transactionDataForAnalytics', (req, res) => {
       statuses: correctedStatuses,
       createdAt: correctedDates,
       types: correctedTypes,
-      cardTypes: correctedCardTypes*/
+      cardTypes: correctedCardTypes*//*
     });
-  });
+  });*/
 });
 
 
