@@ -47,7 +47,7 @@ app.get('/transactionDataForAnalytics', async (req, res) => {
   let endDate = req.query.endDate;
   
   let transactions = await fetchDataForAnalytics(startDate, endDate);
-  console.log("Transactions array: ", transactions);
+  console.log("Transactions array in app.js: ", transactions);
 
   // Function to move the dates from UTC to CST.
   function formatDates(dates) {

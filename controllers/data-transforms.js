@@ -1,5 +1,10 @@
+var moment = require('moment-timezone');
+
 function transformData(transactions) {
+    console.log("Transactions array in data-transforms.js: ", transactions);
     // TODO: call the below functions on the transactions map here.
+    transactions = formatDates(transactions);
+    return transactions;
 }
 
 // Function to move the dates from UTC to CST.

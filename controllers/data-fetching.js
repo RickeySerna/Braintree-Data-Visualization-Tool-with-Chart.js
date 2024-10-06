@@ -1,4 +1,5 @@
 const gateway = require('../gatewaycreate.js');
+const { transformData } = require('./data-transforms');
 
 async function fetchDataForAnalytics(startDate, endDate) {
     let transactions = [];
@@ -81,6 +82,7 @@ async function fetchDataForAnalytics(startDate, endDate) {
         });
         stream.on('end', () => {
             console.log("All done! Sending the data over.");
+            transactions = transformData(transactions);
             resolve(transactions);
         });
         stream.on('error', (err) => {
