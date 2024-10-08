@@ -135,12 +135,14 @@
                     // The array is filled with the property values which pass the filters.
                     // Now, we can just define this logic once, then use it for all 12 times we create these array.
                     // Also takes selected... arrays since those are different for each graphs.
-                    function filterArrays(array, selectedTypes, selectedStatuses, selectedCardTypes) {
-                        return array.map(function(item, i) {
-                            if (selectedTypes.includes(response.types[i]) && selectedStatuses.includes(response.statuses[i]) && selectedCardTypes.includes(response.cardTypes[i])) {
-                                return item;
-                            }
-                            else {
+                    // UPDATE: Changed function to iterate over an array of objects.
+                    function filterArray(array, selectedTypes, selectedStatuses, selectedCardTypes) {
+                        return array.map(function(transaction) {
+                            if (selectedTypes.includes(transaction.paymentInstrumentType) &&
+                                selectedStatuses.includes(transaction.status) &&
+                                selectedCardTypes.includes(transaction.cardType)) {
+                                return transaction;
+                            } else {
                                 return null;
                             }
                         });
