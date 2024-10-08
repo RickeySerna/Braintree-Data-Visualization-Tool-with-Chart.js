@@ -126,21 +126,9 @@
                 type: 'GET',
                 dataType: 'json',
                 success: function(response) {
-                    console.log("Transactions array: ", response.transactions);
-                    // The arrays are in reverse order chronologically, so we're reversing them now.
-                    /*var createdAt = response.createdAt.reverse();
-                    var amounts = response.amounts.reverse();
-                    var ids = response.ids.reverse();
-                    var statuses = response.statuses.reverse();
-                    var types = response.types.reverse();
-                    var cardTypes = response.cardTypes.reverse();*/
-
-                    console.log("Date array: ", createdAt);
-                    console.log("Amount array: ", amounts);
-                    console.log("ID array: ", ids);
-                    console.log("Status array: ", statuses);
-                    console.log("Type array: ", types);
-                    console.log("Card type array: ", cardTypes);
+                    // The array is in reverse order chronologically, so we reverse it now.
+                    var transactions = response.transactions.reverse();
+                    console.log("Transactions array in index.hbs: ", response.transactions);
 
                     // This function generates the filtered arrays that we were previously generating manually one by one.
                     // It returns an array built from the "array" it was passed.
