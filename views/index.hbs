@@ -586,9 +586,26 @@
                     // So it's passed a set containing unique types/statuses and it pulls out those unique types/statuses.
                     // Then this is all wrapped in [] so it's creating an array from those types/statuses that ... pulled out of the Set.
                     // Update: throwing a sort() on the end of these so that the checkbox options are in alphabetical order when they're displayed to the user.
-                    var transactionTypes = [...new Set(types)].sort();
-                    var transactionStatuses = [...new Set(statuses)].sort();
-                    var transactionCardTypes = [...new Set(cardTypes)].sort();
+                    // Update 2: With the restructure to a single array, we're changing the logic here. We use reduce to parse over the entire transactions array.
+                    // The accumulator is defined as an object with three arrays and as we iterate over the array, we add unique values to the three arrays, then return the accumulated object.
+                    const uniqueValues = transactions.reduce((acc, transaction) => {
+                        if (!acc.types.includes(transaction.paymentInstrumentType)) {
+                            acc.types.push(transaction.paymentInstrumentType);
+                        }
+                        if (!acc.statuses.includes(transaction.status)) {
+                            acc.statuses.push(transaction.status);
+                        }
+                        if (!acc.cardTypes.includes(transaction.cardType)) {
+                            acc.cardTypes.push(transaction.cardType);
+                        }
+                        return acc;
+                    }, { types: [], statuses: [], cardTypes: [] });
+
+                    uniqueValues.types.sort();
+                    uniqueValues.statuses.sort();
+                    uniqueValues.cardTypes.sort();
+
+                    console.log("Unique values object: ", uniqueValues);
 
                     // Checking that the arrays are accurate.
                     console.log("Transaction types array: ", transactionTypes);
