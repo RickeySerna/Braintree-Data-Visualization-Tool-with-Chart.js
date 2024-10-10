@@ -51,7 +51,7 @@
                 </div>
                 <div class="checkbox-cols">
                     <p>Card Types:</p>
-                    <div id="transaction-card-types-line-chart"></div>
+                    <div id="transaction-cardTypes-line-chart"></div>
                 </div>
                 <div class="checkbox-cols">
                     <p>Set Y Max Value:</p>
@@ -85,7 +85,7 @@
                 </div>
                 <div class="checkbox-cols">
                     <p>Card Types:</p>
-                    <div id="transaction-card-types-bar-chart"></div>
+                    <div id="transaction-cardTypes-bar-chart"></div>
                 </div>
                 <div class="checkbox-cols">
                     <p>Set Y Max Value:</p>
@@ -607,32 +607,30 @@
 
                     console.log("Unique values object: ", uniqueValues);
 
-                    // Checking that the arrays are accurate.
-                    console.log("Transaction types array: ", transactionTypes);
-                    console.log("Transaction statuses array: ", transactionStatuses);
-
                     // All three of the below forEach functions perform the same task; automatically add buttons to the checkbox sections.
                     // We take the 3 arrays we just created^ and run forEach on all of them. Each individual item in the arrays is used as the label and value for each button.
                     // Because the arrays inherently list each option one time, we just need to go through and create one button for each item in the array.
                     
                     // Update; added styles here. Since these are generated programmatically, the styles in the stylesheet don't seem to apply. Doing it here instead.
                     // Add checkboxes for each transaction type
-                    transactionTypes.forEach(function(type) {
-                        $('#transaction-types-line-chart').append('<input type="checkbox" checked value="' + type + '"><span></span><span style="color: white;">' + type + '</span><br>');
-                        $('#transaction-types-bar-chart').append('<input type="checkbox" checked value="' + type + '"><span></span><span style="color: white;">' + type + '</span><br>');
-                    });
 
-                    // Add checkboxes for each transaction status
-                    transactionStatuses.forEach(function(status) {
-                        $('#transaction-statuses-line-chart').append('<input type="checkbox" checked value="' + status + '"><span></span><span style="color: white;">' + status + '</span><br>');
-                        $('#transaction-statuses-bar-chart').append('<input type="checkbox" checked value="' + status + '"><span></span><span style="color: white;">' + status + '</span><br>');
-                    });
+                    // Update: Moving the logic to it's own function which will be called on the uniqueValues array.
+                    // The function uses the names of the arrays in the object to automatically generate the checkboxes from the data therein.
+                    function generateCheckboxes(data) {
+                        for (const category in data) {
+                            if (data.hasOwnProperty(category)) {
+                                data[category].forEach(function(item) {
+                                    const checkbox = '<input type="checkbox" checked value="' + item + '"><span></span><span style="color: white;">' + item + '</span><br>';
+                                    console.log("Attempting this element: " + `transaction-${category}-line-chart`);
+                                    document.getElementById(`transaction-${category}-line-chart`).innerHTML += checkbox;
+                                    console.log("Attempting this element: " + `transaction-${category}-bar-chart`);
+                                    document.getElementById(`transaction-${category}-bar-chart`).innerHTML += checkbox;
+                                });
+                            }
+                        }
+                    }
 
-                    // Add checkboxes for each transaction card type
-                    transactionCardTypes.forEach(function(type) {
-                        $('#transaction-card-types-line-chart').append('<input type="checkbox" checked value="' + type + '"><span></span><span style="color: white;">' + type + '</span><br>');
-                        $('#transaction-card-types-bar-chart').append('<input type="checkbox" checked value="' + type + '"><span></span><span style="color: white;">' + type + '</span><br>');
-                    });
+                    generateCheckboxes(uniqueValues);
 
                     // Function to draw the chart
                     function drawChart() {
