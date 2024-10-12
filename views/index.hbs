@@ -221,7 +221,7 @@
                         console.log("Total amount Gateway Rejected: " + gatewayRejectedTotal);
                         console.log("Total amount failed otherwise: " + otherFailuresTotal);
 
-                        for (let i = 0; i < types.length; i++) {
+                        for (let i = 0; i < filteredTypes.length; i++) {
                             // Including this check now so that there doesn't end up being a category for null if the user filters anything out.
                             if (filteredTypes[i] !== null) {
                                 if (!transactionTypeCounts[filteredTypes[i]]) {
@@ -650,14 +650,17 @@
                         var selectedTypes = $('#transaction-types-line-chart input:checked').map(function() {
                             return this.value;
                         }).get();
+                        console.log("selectedTypes: ", selectedTypes);
 
                         var selectedStatuses = $('#transaction-statuses-line-chart input:checked').map(function() {
                             return this.value;
                         }).get();
+                        console.log("selectedStatuses: ", selectedStatuses);
 
-                        var selectedCardTypes = $('#transaction-card-types-line-chart input:checked').map(function() {
+                        var selectedCardTypes = $('#transaction-cardTypes-line-chart input:checked').map(function() {
                             return this.value;
                         }).get();
+                        console.log("selectedCardTypes: ", selectedCardTypes);
 
                         // Now that we're just setting the x axis as the original, full createdAt array, the filteredIndex array is not necessary.
                         // Now instead, filteredDates gets added to in a similar manner as filteredAmounts.
@@ -667,35 +670,29 @@
                         // Update: it became useful! Passing this into fillSearchResultsInfo along with the other arrays I'm building the same way.
                         // Also, just realized I had these using the original response.xxx arrays instead of the reversed ones. Fixed that.
                         // 2nd update: Just using the filterArrays() function to generate these arrays now.
-                        //var filteredDates = filterArrays(createdAt, selectedTypes, selectedStatuses, selectedCardTypes);
 
                         // Since we're keeping the x axis consistent now, changed how the transactions are filtered.
                         // Now, in order to keep this filteredAmounts array at the same length as the original array, we throw null values in the place of the original filtered out transaction.
                         // If the txn passes the filters, it gets added to the array. If it does not, null gets thrown in.
                         // This is important bc Chart.js will ignore a null value. So doing it like this means that only the transactions that pass the filter will show up in the graph.
-                        //var filteredAmounts = filterArrays(amounts, selectedTypes, selectedStatuses, selectedCardTypes);
-
-                        // Filtered array for the transaction IDs.
-                        //var filteredIDs = filterArrays(ids, selectedTypes, selectedStatuses, selectedCardTypes);
-
-                        // Filtered array for the statuses.
-                        //var filteredStatuses = filterArrays(statuses, selectedTypes, selectedStatuses, selectedCardTypes);
-
-                        // Filtered array for the types.
-                        //var filteredTypes = filterArrays(types, selectedTypes, selectedStatuses, selectedCardTypes);
-
-                        // Filtered array for the card types.
-                        //var filteredCardTypes = filterArrays(cardTypes, selectedTypes, selectedStatuses, selectedCardTypes);
 
                         var filteredTransactions = filterArray(transactions, selectedTypes, selectedStatuses, selectedCardTypes);
                         console.log("filteredTransactions: ", filteredTransactions);
 
                         let filteredAmounts = [];
                         let filteredStatuses = [];
+                        let filteredDates = [];
+                        let filteredIDs = [];
+                        let filteredTypes = [];
+                        let filteredCardTypes = [];
 
                         filteredTransactions.forEach(transaction => {
                             filteredAmounts.push(transaction.amount);
                             filteredStatuses.push(transaction.status);
+                            filteredDates.push(transaction.createdAt);
+                            filteredIDs.push(transaction.id);
+                            filteredTypes.push(transaction.paymentInstrumentType);
+                            filteredCardTypes.push(transaction.cardType);
                         });
 
                         let lineChartXAxis = transactions.map(transaction => {
