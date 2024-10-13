@@ -1016,6 +1016,12 @@
                             transactionBarChart.destroy();
                         }
 
+                        let createdAt = [];
+                        transactions.forEach(transaction => {
+                            createdAt.push(transaction.createdAt);
+                        });
+
+
                         // Creating the selected types arrays in the same way we do for the line chart.
                         // Have to do this separately for each one to allow the user to choose different filters for each graph.
                         var selectedTypesBarChart = $('#transaction-types-bar-chart input:checked').map(function() {
@@ -1026,7 +1032,7 @@
                             return this.value;
                         }).get();
 
-                        var selectedCardTypesBarChart = $('#transaction-card-types-bar-chart input:checked').map(function() {
+                        var selectedCardTypesBarChart = $('#transaction-cardTypes-bar-chart input:checked').map(function() {
                             return this.value;
                         }).get();
 
@@ -1036,7 +1042,7 @@
 
                         // Similarly, creating the filtered arrays in the same way.
                         // Update: Creating these using the filterArrays() function now.
-                        // Filtered array for the dates.
+                        /*// Filtered array for the dates.
                         var filteredDatesBarChart = filterArrays(createdAt, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);
 
                         // Filtered array for the amounts.
@@ -1052,15 +1058,34 @@
                         var filteredTypesBarChart = filterArrays(types, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);
 
                         // Filtered array for the card types.
-                        var filteredCardTypesBarChart = filterArrays(cardTypes, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);
+                        var filteredCardTypesBarChart = filterArrays(cardTypes, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);*/
+
+                        var filteredBarTransactions = filterArray(transactions, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);
+                        console.log("filteredBarTransactions: ", filteredBarTransactions);
+
+                        let filteredAmounts = [];
+                        let filteredStatuses = [];
+                        let filteredDates = [];
+                        let filteredIDs = [];
+                        let filteredTypes = [];
+                        let filteredCardTypes = [];
+
+                        filteredBarTransactions.forEach(transaction => {
+                            filteredAmounts.push(transaction.amount);
+                            filteredStatuses.push(transaction.status);
+                            filteredDates.push(transaction.createdAt);
+                            filteredIDs.push(transaction.id);
+                            filteredTypes.push(transaction.paymentInstrumentType);
+                            filteredCardTypes.push(transaction.cardType);
+                        });
 
                         // The amounts array is all strings so we convert them to numbers.
-                        var fixedAmounts = filteredAmountsBarChart.map(Number);
+                        var fixedAmounts = filteredAmounts.map(Number);
 
                         console.log("Bar chart amounts after formatting: ", fixedAmounts);
 
                         // The data returned by the generateDataForBarChart function above.
-                        var [dataSuccessful, dataDeclined, dataRejected, idsSuccessful, idsDeclined, idsRejected] = generateDataForBarChart(dates, createdAt, fixedAmounts, filteredStatusesBarChart, filteredIDsBarChart);
+                        var [dataSuccessful, dataDeclined, dataRejected, idsSuccessful, idsDeclined, idsRejected] = generateDataForBarChart(dates, createdAt, fixedAmounts, filteredStatuses, filteredIDs);
 
                         var ctx = document.getElementById("transaction-bar-chart");
                         transactionBarChart = new Chart(ctx, {
