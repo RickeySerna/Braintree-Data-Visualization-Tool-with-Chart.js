@@ -331,7 +331,7 @@
                         console.log("Total amount failed otherwise: " + otherFailuresTotalBar);
 
 
-                        for (let i = 0; i < types.length; i++) {
+                        for (let i = 0; i < filteredTypes.length; i++) {
                             // Including this check now so that there doesn't end up being a category for null if the user filters anything out.
                             if (filteredTypes[i] !== null) {
                                 if (!transactionTypeCountsBar[filteredTypes[i]]) {
@@ -676,9 +676,11 @@
                         // If the txn passes the filters, it gets added to the array. If it does not, null gets thrown in.
                         // This is important bc Chart.js will ignore a null value. So doing it like this means that only the transactions that pass the filter will show up in the graph.
 
+                        // Update: Now using filterArray to generate a new array of filtered transaction objects.
                         var filteredTransactions = filterArray(transactions, selectedTypes, selectedStatuses, selectedCardTypes);
                         console.log("filteredTransactions: ", filteredTransactions);
 
+                        // Defining the arrays that will be built from the objects.
                         let filteredAmounts = [];
                         let filteredStatuses = [];
                         let filteredDates = [];
@@ -686,6 +688,7 @@
                         let filteredTypes = [];
                         let filteredCardTypes = [];
 
+                        // Iterating over the filtered transactions and filling the arrays.
                         filteredTransactions.forEach(transaction => {
                             filteredAmounts.push(transaction.amount);
                             filteredStatuses.push(transaction.status);
@@ -1021,7 +1024,6 @@
                             createdAt.push(transaction.createdAt);
                         });
 
-
                         // Creating the selected types arrays in the same way we do for the line chart.
                         // Have to do this separately for each one to allow the user to choose different filters for each graph.
                         var selectedTypesBarChart = $('#transaction-types-bar-chart input:checked').map(function() {
@@ -1042,27 +1044,11 @@
 
                         // Similarly, creating the filtered arrays in the same way.
                         // Update: Creating these using the filterArrays() function now.
-                        /*// Filtered array for the dates.
-                        var filteredDatesBarChart = filterArrays(createdAt, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);
-
-                        // Filtered array for the amounts.
-                        var filteredAmountsBarChart = filterArrays(amounts, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);
-
-                        // Filtered array for the transaction IDs.
-                        var filteredIDsBarChart = filterArrays(ids, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);
-
-                        // Filtered array for the statuses.
-                        var filteredStatusesBarChart = filterArrays(statuses, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);
-
-                        // Filtered array for the types.
-                        var filteredTypesBarChart = filterArrays(types, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);
-
-                        // Filtered array for the card types.
-                        var filteredCardTypesBarChart = filterArrays(cardTypes, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);*/
-
+                        // Update 2: Now using filterArray to generate a new array of filtered transaction objects.
                         var filteredBarTransactions = filterArray(transactions, selectedTypesBarChart, selectedStatusesBarChart, selectedCardTypesBarChart);
                         console.log("filteredBarTransactions: ", filteredBarTransactions);
 
+                        // Defining the arrays that will be built from the objects.
                         let filteredAmounts = [];
                         let filteredStatuses = [];
                         let filteredDates = [];
@@ -1070,6 +1056,7 @@
                         let filteredTypes = [];
                         let filteredCardTypes = [];
 
+                        // Iterating over the filtered transactions and filling the arrays.
                         filteredBarTransactions.forEach(transaction => {
                             filteredAmounts.push(transaction.amount);
                             filteredStatuses.push(transaction.status);
@@ -1390,7 +1377,7 @@
                         console.log("Original upper Y axis limit, bar chart: " + originalMaxYBarChart);
                         transactionBarChart.options.plugins.zoom.limits.y = {min: 0, max: originalMaxYBarChart};
 
-                        fillBarChartInfo(filteredDatesBarChart, filteredAmountsBarChart, filteredIDsBarChart, filteredStatusesBarChart, filteredTypesBarChart, filteredCardTypesBarChart);
+                        fillBarChartInfo(filteredDates, filteredAmounts, filteredIDs, filteredStatuses, filteredTypes, filteredCardTypes);
 
                         // Adding a "pop out" functionality. User can click a button and the chart fills the entire browser.
                         popOutButton = document.getElementById("bar-chart-pop-out");
