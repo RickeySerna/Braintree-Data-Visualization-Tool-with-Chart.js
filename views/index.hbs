@@ -596,6 +596,7 @@
                     // Update: throwing a sort() on the end of these so that the checkbox options are in alphabetical order when they're displayed to the user.
                     // Update 2: With the restructure to a single array, we're changing the logic here. We use reduce to parse over the entire transactions array.
                     // The accumulator is defined as an object with three arrays and as we iterate over the array, we add unique values to the three arrays, then return the accumulated object.
+                    //
                     const uniqueValues = transactions.reduce((acc, transaction) => {
                         if (!acc.types.includes(transaction.paymentInstrumentType)) {
                             acc.types.push(transaction.paymentInstrumentType);
@@ -606,8 +607,9 @@
                         if (!acc.cardTypes.includes(transaction.cardType)) {
                             acc.cardTypes.push(transaction.cardType);
                         }
+                        acc.ids.push(transaction.id);
                         return acc;
-                    }, { types: [], statuses: [], cardTypes: [] });
+                    }, { types: [], statuses: [], cardTypes: [], ids: [] });
 
                     uniqueValues.types.sort();
                     uniqueValues.statuses.sort();
@@ -638,7 +640,7 @@
                         }
                     }
 
-                    generateCheckboxes(uniqueValues);
+                    generateCheckboxes({types: uniqueValues.types, statuses: uniqueValues.statuses, cardTypes: uniqueValues.cardTypes});
 
                     // Function to draw the chart
                     function drawChart() {
@@ -769,7 +771,7 @@
                                         var index = firstPoint.index;
                                         // Now we take that index and index the ids array we got back from the AJAX call.
                                         // The correct transaction ID will be pulled here since the graph was created from that ids array.
-                                        var transactionId = ids[index];
+                                        var transactionId = uniqueValues.ids[index];
                                         // Merchant ID is now pulled from the .env file.
                                         var merchantId = "{{merchantId}}";
 
@@ -785,7 +787,7 @@
                                             // Filtered index is not necessary anymore, so just grabbing the original index returned here.
                                             title: function(context) {
                                                 var index = context[0].dataIndex;
-                                                var transactionId = ids[index];
+                                                var transactionId = uniqueValues.ids[index];
                                                 return "#" + (index + 1) + ' - Transaction ID: ' + transactionId;
                                             },
                                             label: function(context) {
