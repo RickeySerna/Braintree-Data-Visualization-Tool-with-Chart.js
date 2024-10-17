@@ -1152,7 +1152,7 @@
                                             // We define the string to be returned as an empty string.
                                             var params = '';
                                             // Creating an array consisting of the unchecked card type checkboxes.
-                                            var uncheckedCardTypes = $('#transaction-card-types-bar-chart input:not(:checked)').map(function() {
+                                            var uncheckedCardTypes = $('#transaction-cardTypes-bar-chart input:not(:checked)').map(function() {
                                                 return this.value;
                                             }).get();
 
@@ -1488,8 +1488,8 @@
                     drawBarChart(dates);
 
                     // Redraw the chart whenever a checkbox is checked or unchecked.
-                    $('#transaction-types-line-chart input, #transaction-statuses-line-chart input, #transaction-card-types-line-chart input').change(drawChart);
-                    $('#transaction-types-bar-chart input, #transaction-statuses-bar-chart input, #transaction-card-types-bar-chart input').change(function() {
+                    $('#transaction-types-line-chart input, #transaction-statuses-line-chart input, #transaction-cardTypes-line-chart input').change(drawChart);
+                    $('#transaction-types-bar-chart input, #transaction-statuses-bar-chart input, #transaction-cardTypes-bar-chart input').change(function() {
                         drawBarChart(dates);
                     });
 
@@ -1667,12 +1667,12 @@
                 // Now clearing the checkbox divs for the line chart when the search button is clicked.
                 $('#transaction-types-line-chart').empty();
                 $('#transaction-statuses-line-chart').empty();
-                $('#transaction-card-types-line-chart').empty();
+                $('#transaction-cardTypes-line-chart').empty();
 
                 // Also clearing the checkbox divs for the bar chart
                 $('#transaction-types-bar-chart').empty();
                 $('#transaction-statuses-bar-chart').empty();
-                $('#transaction-card-types-bar-chart').empty();
+                $('#transaction-cardTypes-bar-chart').empty();
 
                 // The event handlers were sticking onto the elements when a second search was created, leading to multiple error messages displayed.
                 // So now we clone the buttons here when a new search is created.
