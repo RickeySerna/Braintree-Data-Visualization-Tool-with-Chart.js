@@ -130,6 +130,40 @@
                     var transactions = response.transactions.reverse();
                     console.log("Transactions array in index.hbs: ", response.transactions);
 
+                    // These lines are creating arrays from the types and statuses arrays, but only with the unique values.
+                    // A Set is an object that only allows unique values. So new Set(response.xxx) is creating Sets from those arrays and those sets inherently only contain the unique values in the array.
+                    // The ... is the spread operator. It sort of "breaks down" an iterable that's passed into it's individual parts.
+                    // So it's passed a set containing unique types/statuses and it pulls out those unique types/statuses.
+                    // Then this is all wrapped in [] so it's creating an array from those types/statuses that ... pulled out of the Set.
+                    // Update: throwing a sort() on the end of these so that the checkbox options are in alphabetical order when they're displayed to the user.
+                    // Update 2: With the restructure to a single array, we're changing the logic here. We use reduce to parse over the entire transactions array.
+                    // The accumulator is defined as an object with three arrays and as we iterate over the array, we add unique values to the three arrays, then return the accumulated object.
+                    //
+                    const transactionsAccumulator = transactions.reduce((acc, transaction) => {
+                        if (!acc.uniqueTypes.includes(transaction.paymentInstrumentType)) {
+                            acc.uniqueTypes.push(transaction.paymentInstrumentType);
+                        }
+                        if (!acc.uniqueStatuses.includes(transaction.status)) {
+                            acc.uniqueStatuses.push(transaction.status);
+                        }
+                        if (!acc.uniqueCardTypes.includes(transaction.cardType)) {
+                            acc.uniqueCardTypes.push(transaction.cardType);
+                        }
+                        acc.ids.push(transaction.id);
+                        acc.amounts.push(transaction.amount);
+                        acc.statuses.push(transaction.status);
+                        acc.cardTypes.push(transaction.cardType);
+                        acc.types.push(transaction.paymentInstrumentType);
+                        acc.createdAt.push(transaction.createdAt);
+                        return acc;
+                    }, {uniqueTypes: [], uniqueStatuses: [], uniqueCardTypes: [], ids: [], amounts: [], statuses: [], cardTypes: [], types: [], createdAt: []});
+
+                    transactionsAccumulator.uniqueTypes.sort();
+                    transactionsAccumulator.uniqueStatuses.sort();
+                    transactionsAccumulator.uniqueCardTypes.sort();
+
+                    console.log("Transactions accumulator object: ", transactionsAccumulator);
+
                     // This function generates the filtered arrays that we were previously generating manually one by one.
                     // It returns an array built from the "array" it was passed.
                     // The array is filled with the property values which pass the filters.
@@ -387,8 +421,8 @@
                         // To pull the actual date, we grab the index of the dates array with these above indices.
                         // Also using moment to format the dates.
                         // Pulling the createdAt array value instead of the dates array value.
-                        var leftDate = moment(createdAt[leftDateIndex], "MMMM Do, YYYY - h:mm A").format("MMMM Do, YYYY");
-                        var rightDate = moment(createdAt[rightDateIndex - 1], "MMMM Do, YYYY - h:mm A").format("MMMM Do, YYYY");
+                        var leftDate = moment(transactionsAccumulator.createdAt[leftDateIndex], "MMMM Do, YYYY - h:mm A").format("MMMM Do, YYYY");
+                        var rightDate = moment(transactionsAccumulator.createdAt[rightDateIndex - 1], "MMMM Do, YYYY - h:mm A").format("MMMM Do, YYYY");
 
                         // Here's where we generate the message and add it to the div we created in the HBS code.
                         var divMessage = document.getElementById(divId);
@@ -406,8 +440,8 @@
 
                         // To pull the actual date, we grab the index of the dates array with these above indices.
                         // Also using moment to format the dates.
-                        var leftDate = moment(dates[leftDateIndex], 'YYYY-MM-DD').format('MMMM Do, YYYY');
-                        var rightDate = moment(dates[rightDateIndex - 1], 'YYYY-MM-DD').format('MMMM Do, YYYY');
+                        var leftDate = moment(transactionsAccumulator.createdAt[leftDateIndex], "MMMM Do, YYYY - h:mm A").format("MMMM Do, YYYY");
+                        var rightDate = moment(transactionsAccumulator.createdAt[rightDateIndex - 1], "MMMM Do, YYYY - h:mm A").format("MMMM Do, YYYY");
 
                         // Here's where we generate the message and add it to the div we created in the HBS code.
                         var divMessage = document.getElementById(divId);
@@ -587,40 +621,6 @@
 
                     // Then it's registered into the Chart.js object. It can actually be used in any chart we create now, that why it only has to be registered once for both charts..
                     Chart.register(beforeDrawPlugin);
-
-                    // These lines are creating arrays from the types and statuses arrays, but only with the unique values.
-                    // A Set is an object that only allows unique values. So new Set(response.xxx) is creating Sets from those arrays and those sets inherently only contain the unique values in the array.
-                    // The ... is the spread operator. It sort of "breaks down" an iterable that's passed into it's individual parts.
-                    // So it's passed a set containing unique types/statuses and it pulls out those unique types/statuses.
-                    // Then this is all wrapped in [] so it's creating an array from those types/statuses that ... pulled out of the Set.
-                    // Update: throwing a sort() on the end of these so that the checkbox options are in alphabetical order when they're displayed to the user.
-                    // Update 2: With the restructure to a single array, we're changing the logic here. We use reduce to parse over the entire transactions array.
-                    // The accumulator is defined as an object with three arrays and as we iterate over the array, we add unique values to the three arrays, then return the accumulated object.
-                    //
-                    const transactionsAccumulator = transactions.reduce((acc, transaction) => {
-                        if (!acc.uniqueTypes.includes(transaction.paymentInstrumentType)) {
-                            acc.uniqueTypes.push(transaction.paymentInstrumentType);
-                        }
-                        if (!acc.uniqueStatuses.includes(transaction.status)) {
-                            acc.uniqueStatuses.push(transaction.status);
-                        }
-                        if (!acc.uniqueCardTypes.includes(transaction.cardType)) {
-                            acc.uniqueCardTypes.push(transaction.cardType);
-                        }
-                        acc.ids.push(transaction.id);
-                        acc.amounts.push(transaction.amount);
-                        acc.statuses.push(transaction.status);
-                        acc.cardTypes.push(transaction.cardType);
-                        acc.types.push(transaction.paymentInstrumentType);
-                        acc.createdAt.push(transaction.createdAt);
-                        return acc;
-                    }, {uniqueTypes: [], uniqueStatuses: [], uniqueCardTypes: [], ids: [], amounts: [], statuses: [], cardTypes: [], types: [], createdAt: []});
-
-                    transactionsAccumulator.uniqueTypes.sort();
-                    transactionsAccumulator.uniqueStatuses.sort();
-                    transactionsAccumulator.uniqueCardTypes.sort();
-
-                    console.log("Transactions accumulator object: ", transactionsAccumulator);
 
                     // All three of the below forEach functions perform the same task; automatically add buttons to the checkbox sections.
                     // We take the 3 arrays we just created^ and run forEach on all of them. Each individual item in the arrays is used as the label and value for each button.
