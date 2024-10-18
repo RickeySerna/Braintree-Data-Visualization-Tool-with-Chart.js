@@ -409,7 +409,7 @@
                     }
 
                     // Moving these onPan functions into their own definitions so that they can be re-used in both charts.
-                    function onPanChartFunction({chart}, divId) {
+                    function onPanChartFunction({chart}, divId, datesArray) {
                         // Assigning the x axis of the graph to a variable.
                         var xAxis = chart.scales['x'];
 
@@ -419,8 +419,10 @@
 
                         // To pull the actual date, we grab the index of the dates array with these above indices.
                         // Also using moment to format the dates.
-                        var leftDate = moment(transactionsAccumulator.createdAt[leftDateIndex], "MMMM Do, YYYY - h:mm A").format("MMMM Do, YYYY");
-                        var rightDate = moment(transactionsAccumulator.createdAt[rightDateIndex - 1], "MMMM Do, YYYY - h:mm A").format("MMMM Do, YYYY");
+                        var leftDate = moment(datesArray[leftDateIndex], "MMMM Do, YYYY - h:mm A").format("MMMM Do, YYYY");
+                        var rightDate = moment(datesArray[rightDateIndex - 1], "MMMM Do, YYYY - h:mm A").format("MMMM Do, YYYY");
+                        console.log("leftDate: ", leftDate);
+                        console.log("rightDate: ", rightDate);
 
                         // Here's where we generate the message and add it to the div we created in the HBS code.
                         var divMessage = document.getElementById(divId);
@@ -796,7 +798,7 @@
                                             mode: "xy",
                                             threshold: "20",
                                             onPan: function({chart}) {
-                                                onPanChartFunction ({chart}, "line-chart-panning-message");
+                                                onPanChartFunction ({chart}, "line-chart-panning-message", transactionsAccumulator.createdAt);
                                             },
                                             onPanComplete: function() {
                                                 onPanCompleteChartFunction ("line-chart-panning-message");
@@ -907,7 +909,7 @@
                                             pan: {
                                                 ...transactionChart.config.options.plugins.zoom.pan,
                                                 onPan: function({chart}) {
-                                                    onPanChartFunction ({chart}, "overlay-line-chart-message-div");
+                                                    onPanChartFunction ({chart}, "overlay-line-chart-message-div", transactionsAccumulator.createdAt);
                                                 },
                                                 onPanComplete: function() {
                                                     onPanCompleteChartFunction ("overlay-line-chart-message-div");
@@ -1003,10 +1005,7 @@
                             transactionBarChart.destroy();
                         }
 
-                        let createdAt = [];
-                        transactions.forEach(transaction => {
-                            createdAt.push(transaction.createdAt);
-                        });
+                        console.log("dates array: ", dates);
 
                         // Creating the selected types arrays in the same way we do for the line chart.
                         // Have to do this separately for each one to allow the user to choose different filters for each graph.
@@ -1056,7 +1055,7 @@
                         console.log("Bar chart amounts after formatting: ", fixedAmounts);
 
                         // The data returned by the generateDataForBarChart function above.
-                        var [dataSuccessful, dataDeclined, dataRejected, idsSuccessful, idsDeclined, idsRejected] = generateDataForBarChart(dates, createdAt, fixedAmounts, filteredStatuses, filteredIDs);
+                        var [dataSuccessful, dataDeclined, dataRejected, idsSuccessful, idsDeclined, idsRejected] = generateDataForBarChart(dates, filteredDates, fixedAmounts, filteredStatuses, filteredIDs);
 
                         var ctx = document.getElementById("transaction-bar-chart");
                         transactionBarChart = new Chart(ctx, {
@@ -1327,7 +1326,7 @@
                                             mode: "xy",
                                             threshold: "20",
                                             onPan: function({chart}) {
-                                                onPanChartFunction ({chart}, "bar-chart-panning-message");
+                                                onPanChartFunction ({chart}, "bar-chart-panning-message", dates);
                                             },
                                             onPanComplete: function() {
                                                 onPanCompleteChartFunction ("bar-chart-panning-message");
@@ -1438,7 +1437,7 @@
                                             pan: {
                                                 ...transactionBarChart.config.options.plugins.zoom.pan,
                                                 onPan: function({chart}) {
-                                                    onPanChartFunction ({chart}, "overlay-bar-chart-message-div");
+                                                    onPanChartFunction ({chart}, "overlay-bar-chart-message-div", dates);
                                                 },
                                                 onPanComplete: function() {
                                                     onPanCompleteChartFunction ("overlay-bar-chart-message-div");
