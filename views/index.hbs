@@ -419,10 +419,15 @@
 
                         // To pull the actual date, we grab the index of the dates array with these above indices.
                         // Also using moment to format the dates.
-                        var leftDate = moment(datesArray[leftDateIndex], "MMMM Do, YYYY - h:mm A").format("MMMM Do, YYYY");
-                        var rightDate = moment(datesArray[rightDateIndex - 1], "MMMM Do, YYYY - h:mm A").format("MMMM Do, YYYY");
-                        console.log("leftDate: ", leftDate);
-                        console.log("rightDate: ", rightDate);
+
+                        // We check for the format of the date we're changing.
+                        // We use test() to check if the first date in the array fits the YYYY-MM-DD format. If so, it's set like that. Otherwise, it's set to MMMM Do, YYYY - h:mm A.
+                        var dateFormat = /^\d{4}-\d{2}-\d{2}$/.test(datesArray[0]) ? "YYYY-MM-DD" : "MMMM Do, YYYY - h:mm A";
+
+                        // Now we define the format here based on the format var we just created.
+                        // This allows the the function to work perfectly with both the line chart and bar chart dates.
+                        var leftDate = moment(datesArray[leftDateIndex], dateFormat).format("MMMM Do, YYYY");
+                        var rightDate = moment(datesArray[rightDateIndex - 1], dateFormat).format("MMMM Do, YYYY");
 
                         // Here's where we generate the message and add it to the div we created in the HBS code.
                         var divMessage = document.getElementById(divId);
