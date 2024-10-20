@@ -1060,7 +1060,10 @@
                         console.log("Bar chart amounts after formatting: ", fixedAmounts);
 
                         // The data returned by the generateDataForBarChart function above.
-                        var [dataSuccessful, dataDeclined, dataRejected, idsSuccessful, idsDeclined, idsRejected] = generateDataForBarChart(dates, filteredDates, fixedAmounts, filteredStatuses, filteredIDs);
+                        var [dataSuccessful, dataDeclined, dataRejected, idsSuccessful, idsDeclined, idsRejected] = generateDataForBarChart(dates, transactionsAccumulator.createdAt, fixedAmounts, filteredStatuses, filteredIDs);
+                        console.log("Bar chart dataSuccessful: ", dataSuccessful);
+                        console.log("Bar chart dataDeclined: ", dataDeclined);
+                        console.log("Bar chart dataRejected: ", dataRejected);
 
                         var ctx = document.getElementById("transaction-bar-chart");
                         transactionBarChart = new Chart(ctx, {
