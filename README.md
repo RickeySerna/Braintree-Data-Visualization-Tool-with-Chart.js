@@ -4,6 +4,27 @@ Hello!
 
 This is a data visualization tool for Braintree gateways using Chart.js. It is a website which generates two charts; Transaction Timeline and Transaction Volume by Day. They are in the form of a line chart and a bar chart respectively. Enter a start and end date in the designated date fields, then hit the Submit button and both charts will be generated.
 
+## Table of Contents
+- Setup
+- Transaction Timeline
+- Transaction Volume by Day
+- Notable features
+
+## Setup
+
+1. **Download and Unzip**: Download a copy of the project and unzip it.
+2. **Setup Environment Variables**: Enter the root directory and copy the contents of `gatewaycredentials.env` into a new file named `.env`. Enter your Braintree API Keys in the designated spaces. Set the `ENVIRONMENT` variable to the environment your gateway uses. It is set to "Sandbox" by default, but set it to "Production" instead if you are using a production gateway.
+3. **Install Dependencies**: Open a terminal in the root directory and run:
+```
+npm install
+```
+4. **Start the Server**: To start the server, run:
+```
+npm start
+```
+
+Then open http://localhost:3000/ in any browser.
+
 ## Transaction Timeline
 
 This chart plots transactions on with each plot point representing an individual transaction from further to most recent going from left to right.
@@ -26,7 +47,7 @@ This chart plots each day within the search range and creates three bars in each
 * Hovering over any bar will bring up a tooltip providing information on that bar including the date, the total amount on those transactions, and the transaction IDs making up the bar.
 * Each bar can be clicked and it will bring the user to a transaction search within the Braintree gateway bringing up those specific transactions.
 
-#### Both charts have a number of common features:
+#### Notable features:
 
 * Filtering options are generated dynamically based on what's returned in the search. I.e., American Express will only appear as a filtering option under Card Types if the search contained Amex transactions.
 * Filters can be used together so that only specific transactions are charted. For example, if a user only wants to see how their Visa Apple Pay transactions have been processing, they could filter out everything but Apple Pay under Payment Methods and everything but Visa under Card Types.
@@ -37,35 +58,6 @@ This chart plots each day within the search range and creates three bars in each
 * A Set Y Max Value option under the filtering categories. Allow the user to manually set the upper limit of the Y axis. Useful when zooming and panning or in the event that an outlier transaction pulls the Y axis too high to see most transactions.
 * A Pop Out button in the upper lefthand corner which pulls the chart out to cover the entire browser window.
 * At any time, the user can rightclick on the chart and save a snapshot of the chart exactly as it is currently displayed as a PNG file. The snapshot captures the chart even when zoomed, panned, and/or filtered.
-
-## Installation and Run
-
-To run the project, download a copy and unzip it. Enter the root directory and copy the gatewaycredentials.env file's contents into a new file titled .env. Enter the new .env file and enter your Braintree API Keys in the designated spaces.
-
-Do note that the file project is set to run on production/live Braintree gateways by default. To use this with a sandbox, enter the gatewaycreate.js file and change the environment parameter from braintree.Environment.Sandbox to braintree.Environment.Production:
-
-```
-const gateway = new braintree.BraintreeGateway({
-  environment: braintree.Environment.Production,"Change this line"
-  merchantId: process.env.MERCHANT_ID,
-  publicKey: process.env.PUBLIC_KEY,
-  privateKey: process.env.PRIVATE_KEY
-});
-```
-
-Once that's done, open a terminal inside the project and run npm install to ensure that all dependencies are generated properly:
-
-```
-npm install
-```
-
-Once that's done, start the server by running npm start:
-
-```
-npm start
-```
-
-While the server is running, head to http://localhost:3000/ on any browser.
 
 Thank you and enjoy!
 
