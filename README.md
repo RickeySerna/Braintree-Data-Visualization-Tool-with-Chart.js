@@ -5,10 +5,10 @@ Hello!
 This is a data visualization tool for Braintree gateways using Chart.js. It is a website which generates two charts; Transaction Timeline and Transaction Volume by Day. They are in the form of a line chart and a bar chart respectively. Enter a start and end date in the designated date fields, then hit the Submit button and both charts will be generated.
 
 ## Table of Contents
-- Setup
-- Transaction Timeline
-- Transaction Volume by Day
-- Notable features
+- [Setup](#setup)
+- [Transaction Timeline](#transaction-timeline)
+- [Transaction Volume by Day](#transaction-volume-by-day)
+- [Notable features](#notable-features)
 
 ## Setup
 
