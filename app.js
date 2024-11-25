@@ -43,12 +43,8 @@ app.get('/', (req, res) => {
 });
 
 app.get('/transactionDataForAnalytics', async (req, res) => {
-  // Pulling the start and end dates passed from the client.
-  let startDate = req.query.startDate;
-  let endDate = req.query.endDate;
-  
-  // Calling the function we imported to fetch and transform the data.
-  let transactions = await fetchDataForAnalytics(startDate, endDate);
+  // Calling the function we imported to fetch and transform the data and passing the entire request object into it.
+  let transactions = await fetchDataForAnalytics(req);
   console.log("Transactions array in app.js: ", transactions);
 
   // Passing the data back to the client.

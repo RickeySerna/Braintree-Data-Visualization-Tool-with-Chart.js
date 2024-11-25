@@ -1,7 +1,9 @@
 const gateway = require('../gatewaycreate.js');
 const { transformData } = require('./data-transforms');
 
-async function fetchDataForAnalytics(startDate, endDate) {
+async function fetchDataForAnalytics(req) {
+    let startDate = req.query.startDate;
+    let endDate = req.query.endDate;
     let transactions = [];
 
     console.log("Start date in data-fetching.js: " + startDate);
