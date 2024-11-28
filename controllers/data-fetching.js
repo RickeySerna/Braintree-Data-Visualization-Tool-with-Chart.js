@@ -101,9 +101,12 @@ async function fetchDataForAnalytics(req) {
             console.error("Braintree Authentication Error: Looks like something went wrong with your API keys. Please check your .env file and ensure they're entered correctly.");
             process.exit(1);
         }
-        else {
-            console.error("Error: ", error.message);
+        else if (error.type === "authorizationError") {
+            console.error("Braintree Authorization Error: The provided API keys do not have the permissions to search for transactions. Contact an account admin to update your permissions.");
             process.exit(1);
+        }
+        else {
+            throw error;
         }
     }
 }
